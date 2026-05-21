@@ -5,20 +5,78 @@ import 'package:intl/intl.dart';
 
 import 'package:tenis_kulubu/core/theme/app_colors.dart';
 import 'package:tenis_kulubu/features/auth/data/auth_repository.dart';
+import 'package:tenis_kulubu/features/coach/data/coach_booking_model.dart';
+import 'package:tenis_kulubu/features/coach/data/coach_service.dart';
 
-// Kullanıcının kendi rezervasyonlarını çeken StreamProvider
-final myReservationsProvider = StreamProvider<List<MyReservationData>>((ref) {
+// =========================================================================
+// 1. VERİ MODELİ (Genişletilmiş MyReservationData)
+// =========================================================================
+class MyReservationData {
+  final String id;
+  final String facilityName;
+  final String facilityType;
+  final String startTime;
+  final String endTime;
+  final String status;
+  final DateTime date;
+  final bool isCoachBooking; // Koç randevusu ayrımı için
+  final BookingStatus? coachBookingStatus; // Koç randevusunun detay durumu için
+
+  const MyReservationData({
+    required this.id,
+    required this.facilityName,
+    required this.facilityType,
+    required this.startTime,
+    required this.endTime,
+    required this.status,
+    required this.date,
+    this.isCoachBooking = false,
+    this.coachBookingStatus,
+  });
+
+  bool get isActive => isCoachBooking 
+      ? (coachBookingStatus != BookingStatus.cancelled)
+      : (status == 'active');
+
+  IconData get icon {
+    switch (facilityType) {
+      case 'tennis_court': return Icons.sports_tennis;
+      case 'pool': return Icons.pool;
+      case 'gym': return Icons.fitness_center;
+      case 'coach': return Icons.person; // Özel ders koçu ikonu
+      default: return Icons.sports_volleyball;
+    }
+  }
+
+  Color get color {
+    switch (facilityType) {
+      case 'tennis_court': return AppColors.courtColor;
+      case 'pool': return AppColors.poolColor;
+      case 'gym': return AppColors.gymColor;
+      case 'coach': return Colors.orange; // Koç kartları için tema rengi
+      default: return AppColors.secondary;
+    }
+  }
+}
+
+// =========================================================================
+// 2. DATA PROVIDERLAR (Tesis ve Koç Rezervasyonları Akışları)
+// =========================================================================
+
+// Standart Tesis Rezervasyonları Stream'i
+final facilityReservationsProvider = StreamProvider<List<MyReservationData>>((ref) {
   final userAsync = ref.watch(currentUserProvider);
   final user = userAsync.value;
 
   if (user == null) return Stream.value([]);
 
+  // Sadece userId filtresi uyguluyoruz, orderBy eklemiyoruz (İndeks hatasını önlemek için)
   return FirebaseFirestore.instance
       .collection('reservations')
       .where('userId', isEqualTo: user.id)
       .snapshots()
       .map((snap) {
-    final list = snap.docs.map((doc) {
+    return snap.docs.map((doc) {
       final d = doc.data();
       return MyReservationData(
         id: doc.id,
@@ -30,65 +88,92 @@ final myReservationsProvider = StreamProvider<List<MyReservationData>>((ref) {
         date: d['date'] != null ? (d['date'] as Timestamp).toDate() : DateTime.now(),
       );
     }).toList();
-
-    // Tarihe göre en yakından en uzağa sıralayalım
-    list.sort((a, b) => b.date.compareTo(a.date));
-    return list;
   });
 });
 
-class MyReservationData {
-  final String id;
-  final String facilityName;
-  final String facilityType;
-  final String startTime;
-  final String endTime;
-  final String status;
-  final DateTime date;
+// Koç Rezervasyonları Stream'i
+// Koç Rezervasyonları Stream'i (İndeks hatasını önlemek için sıralamayı cihazda yapacağız)
+final coachReservationsProvider = StreamProvider<List<MyReservationData>>((ref) {
+  final userAsync = ref.watch(currentUserProvider);
+  final user = userAsync.value;
 
-  const MyReservationData({
-    required this.id,
-    required this.facilityName,
-    required this.facilityType,
-    required this.startTime,
-    required this.endTime,
-    required this.status,
-    required this.date,
+  if (user == null) return Stream.value([]);
+
+  final coachService = CoachService();
+  return coachService.getUserBookings(user.id).map((bookings) {
+    final list = bookings.map((b) {
+      String statusStr = 'active';
+      if (b.status == BookingStatus.cancelled) statusStr = 'cancelled';
+
+      return MyReservationData(
+        id: b.id,
+        facilityName: '${b.coachName} - Özel Ders',
+        facilityType: 'coach',
+        startTime: b.timeSlot,
+        endTime: '', 
+        status: statusStr,
+        date: b.date,
+        isCoachBooking: true,
+        coachBookingStatus: b.status,
+      );
+    }).toList();
+    
+    return list;
+  }).handleError((error) {
+    // Eğer koç servisinde hala indeks hatası varsa uygulamayı çökertmesin, 
+    // boş liste dönsün ve sadece tesis rezervasyonları listelenebilsin.
+    debugPrint("Koç servis indeksi eksik: $error");
+    return <MyReservationData>[];
   });
+});
 
-  bool get isActive => status == 'active';
+// Kombine Rezervasyon Listesi Provider'ı (İki akışı bellek üzerinde birleştirir ve sıralar)
+final myReservationsProvider = Provider<AsyncValue<List<MyReservationData>>>((ref) {
+  final facilityResAsync = ref.watch(facilityReservationsProvider);
+  final coachResAsync = ref.watch(coachReservationsProvider);
 
-  IconData get icon {
-    switch (facilityType) {
-      case 'tennis_court': return Icons.sports_tennis;
-      case 'pool': return Icons.pool;
-      case 'gym': return Icons.fitness_center;
-      default: return Icons.sports_volleyball;
-    }
+  // İki akıştan herhangi biri yükleniyorsa yükleniyor durumunu dön
+  if (facilityResAsync.isLoading || coachResAsync.isLoading) {
+    return const AsyncValue.loading();
   }
 
-  Color get color {
-    switch (facilityType) {
-      case 'tennis_court': return AppColors.courtColor;
-      case 'pool': return AppColors.poolColor;
-      case 'gym': return AppColors.gymColor;
-      default: return AppColors.secondary;
-    }
-  }
-}
+  // Herhangi biri hata veriyorsa hata durumunu dön
+  if (facilityResAsync.hasError) return AsyncValue.error(facilityResAsync.error!, facilityResAsync.stackTrace!);
+  if (coachResAsync.hasError) return AsyncValue.error(coachResAsync.error!, coachResAsync.stackTrace!);
 
+  final facilities = facilityResAsync.value ?? [];
+  final coaches = coachResAsync.value ?? [];
+
+  // Listeleri birleştir
+  final combinedList = [...facilities, ...coaches];
+
+  // Sıralama işlemini Firestore yerine cihaz belleğinde yapıyoruz. (Hata vermesini engeller)
+  // Tarihe göre en yakından en uzağa sıralama yap (En yeni randevu en üstte)
+  combinedList.sort((a, b) => b.date.compareTo(a.date));
+
+  return AsyncValue.data(combinedList);
+});
+
+// =========================================================================
+// 3. UI KATMANI (MyReservationsScreen Ekranı)
+// =========================================================================
 class MyReservationsScreen extends ConsumerWidget {
   const MyReservationsScreen({super.key});
 
-  // Rezervasyon İptal Etme Fonksiyonu
-  Future<void> _cancelReservation(BuildContext context, String id) async {
+  // Tipe göre dinamik iptal operasyonu
+  Future<void> _cancelReservation(BuildContext context, MyReservationData reservation) async {
     try {
-      // Doğrudan silmek yerine status'ü 'cancelled' yapıyoruz ki geçmişte görünsün
-      // Veya istersen direkt .delete() de yapabilirsin.
-      await FirebaseFirestore.instance
-          .collection('reservations')
-          .doc(id)
-          .update({'status': 'cancelled'});
+      if (reservation.isCoachBooking) {
+        // Koç ders rezervasyonunu iptal et
+        final service = CoachService();
+        await service.cancelBooking(reservation.id);
+      } else {
+        // Tesis rezervasyonunu iptal et
+        await FirebaseFirestore.instance
+            .collection('reservations')
+            .doc(reservation.id)
+            .update({'status': 'cancelled'});
+      }
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -103,7 +188,7 @@ class MyReservationsScreen extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('İptal edilirken hata oluştu: $e'),
+            content: Text('İptal edilirken bir hata oluştu: $e'),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),
@@ -127,7 +212,7 @@ class MyReservationsScreen extends ConsumerWidget {
           ElevatedButton(
             onPressed: () async {
               Navigator.of(ctx).pop();
-              await _cancelReservation(context, reservation.id);
+              await _cancelReservation(context, reservation);
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             child: const Text('İptal Et'),
@@ -139,6 +224,7 @@ class MyReservationsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Kombine ettiğimiz yeni rezervasyon provider'ını dinliyoruz
     final reservationsAsync = ref.watch(myReservationsProvider);
 
     return Scaffold(
@@ -157,8 +243,10 @@ class MyReservationsScreen extends ConsumerWidget {
                 children: [
                   Icon(Icons.calendar_today_outlined, size: 56, color: AppColors.textHint),
                   SizedBox(height: 12),
-                  Text('Henüz bir rezervasyonunuz bulunmuyor.',
-                      style: TextStyle(color: AppColors.textHint)),
+                  Text(
+                    'Henüz bir rezervasyonunuz bulunmuyor.',
+                    style: TextStyle(color: AppColors.textHint),
+                  ),
                 ],
               ),
             );
@@ -181,6 +269,33 @@ class MyReservationsScreen extends ConsumerWidget {
   Widget _buildReservationCard(BuildContext context, MyReservationData res) {
     final isPast = res.date.isBefore(DateTime.now().subtract(const Duration(days: 1)));
     
+    // Temel durum etiket ve renk atamaları
+    String statusLabel = !res.isActive ? 'İptal Edildi' : (isPast ? 'Tamamlandı' : 'Aktif');
+    Color statusColor = res.isActive && !isPast ? AppColors.success : AppColors.textHint;
+
+    // Koç Randevularına Özel Durum Etiket Yönetimi (Bekliyor / Onaylandı durumları için)
+    if (res.isCoachBooking && res.isActive && !isPast) {
+      if (res.coachBookingStatus == BookingStatus.pending) {
+        statusLabel = 'Bekliyor';
+        statusColor = Colors.orange;
+      } else if (res.coachBookingStatus == BookingStatus.confirmed) {
+        statusLabel = 'Onaylandı';
+        statusColor = const Color(0xFF4CAF50);
+      }
+    }
+
+    // İptal Butonu Görünme Mantığı
+    // Sadece geçmişte kalmayan ve aktif olan randevular iptal edilebilir.
+    // Koç randevularında ise sadece 'pending' (Bekliyor) olanlar iptal edilebilir durumda bırakılmıştır.
+    bool canBeCancelled = false;
+    if (!isPast && res.isActive) {
+      if (res.isCoachBooking) {
+        canBeCancelled = res.coachBookingStatus == BookingStatus.pending;
+      } else {
+        canBeCancelled = true;
+      }
+    }
+    
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -191,7 +306,7 @@ class MyReservationsScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            // Sol Taraf: İkon Alanı
+            // 1. Sol Bölüm: Dinamik İkon Kutusu
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -202,7 +317,7 @@ class MyReservationsScreen extends ConsumerWidget {
             ),
             const SizedBox(width: 14),
             
-            // Orta Taraf: Rezervasyon Bilgileri
+            // 2. Orta Bölüm: Detay Bilgileri
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,7 +347,7 @@ class MyReservationsScreen extends ConsumerWidget {
                       const Icon(Icons.access_time, size: 12, color: AppColors.textSecondary),
                       const SizedBox(width: 4),
                       Text(
-                        '${res.startTime} - ${res.endTime}',
+                        res.isCoachBooking ? res.startTime : '${res.startTime} - ${res.endTime}',
                         style: const TextStyle(
                           fontSize: 12, 
                           color: AppColors.textPrimary,
@@ -245,36 +360,30 @@ class MyReservationsScreen extends ConsumerWidget {
               ),
             ),
             
-            // Sağ Taraf: Durum Etiketi veya İptal Butonu
+            // 3. Sağ Bölüm: Durum Etiketi ve İptal Aksiyonu
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: res.isActive && !isPast
-                        ? AppColors.success.withOpacity(0.1)
-                        : AppColors.textHint.withOpacity(0.1),
+                    color: statusColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    !res.isActive 
-                        ? 'İptal Edildi' 
-                        : isPast 
-                            ? 'Tamamlandı' 
-                            : 'Aktif',
+                    statusLabel,
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: res.isActive && !isPast ? AppColors.success : AppColors.textHint,
+                      color: statusColor,
                     ),
                   ),
                 ),
-                if (res.isActive && !isPast) ...[
+                if (canBeCancelled) ...[
                   const SizedBox(height: 8),
                   IconButton(
                     icon: const Icon(Icons.cancel_outlined, color: AppColors.error, size: 20),
-                    onPressed: () => _showShowCancelDialog(context, res),
+                    onPressed: () => _showCancelDialog(context, res),
                     constraints: const BoxConstraints(),
                     padding: EdgeInsets.zero,
                     tooltip: 'İptal Et',
@@ -286,10 +395,5 @@ class MyReservationsScreen extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  // Küçük bir yazım düzeltmesi için wrapper
-  void _showShowCancelDialog(BuildContext context, MyReservationData res) {
-    _showCancelDialog(context, res);
   }
 }

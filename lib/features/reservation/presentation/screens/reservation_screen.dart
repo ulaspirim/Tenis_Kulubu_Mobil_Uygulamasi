@@ -6,6 +6,7 @@ import 'package:table_calendar/table_calendar.dart';
 
 import 'package:tenis_kulubu/core/theme/app_colors.dart';
 import 'package:tenis_kulubu/features/auth/data/auth_repository.dart';
+import 'package:tenis_kulubu/features/coach/screens/coach_list_screen.dart';
 
 // ─────────────────────────────────────────
 // PROVIDERS
@@ -56,6 +57,8 @@ class FacilityData {
       case 'tennis_court': return Icons.sports_tennis;
       case 'pool': return Icons.pool;
       case 'gym': return Icons.fitness_center;
+      case 'coach': return Icons.person_pin;
+      case 'multi_court': return Icons.sports_volleyball;
       default: return Icons.sports_volleyball;
     }
   }
@@ -65,6 +68,8 @@ class FacilityData {
       case 'tennis_court': return AppColors.courtColor;
       case 'pool': return AppColors.poolColor;
       case 'gym': return AppColors.gymColor;
+      case 'coach': return Colors.greenAccent;
+      case 'multi_court': return Colors.orangeAccent;
       default: return AppColors.secondary;
     }
   }
@@ -74,6 +79,8 @@ class FacilityData {
       case 'tennis_court': return '🎾 Tenis Kortu';
       case 'pool': return '🏊 Havuz';
       case 'gym': return '💪 Spor Salonu';
+      case 'coach': return '👨‍🏫 Antrenör Dersi';
+      case 'multi_court': return '🏐 Çok Amaçlı Alan';
       default: return '🏐 Çok Amaçlı';
     }
   }
@@ -95,8 +102,6 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
   DateTime _selectedDay = DateTime.now();
   String? _selectedTimeSlot;
   bool _isLoading = false;
-  
-  // DEĞİŞİKLİK: Hangi saat diliminde kaç rezervasyon olduğunu saymak için Map yapısına geçildi
   Map<String, int> _slotReservationCounts = {};
 
   List<String> get _timeSlots {
@@ -117,7 +122,8 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final startOfDay = DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day);
+      final startOfDay =
+          DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day);
       final endOfDay = startOfDay.add(const Duration(days: 1));
 
       final snap = await FirebaseFirestore.instance
@@ -128,7 +134,6 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
           .where('date', isLessThan: Timestamp.fromDate(endOfDay))
           .get();
 
-      // DEĞİŞİKLİK: Rezervasyon sayıları her saat dilimi için hesaplanıyor
       final Map<String, int> counts = {};
       for (var doc in snap.docs) {
         final key = '${doc['startTime']} – ${doc['endTime']}';
@@ -398,11 +403,20 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
   Widget _buildFacilityTile(FacilityData f) {
     final isSelected = _selectedFacility?.id == f.id;
     return GestureDetector(
-      onTap: () => setState(() {
-        _selectedFacility = f;
-        _selectedTimeSlot = null;
-        _slotReservationCounts = {};
-      }),
+      onTap: () {
+        if (f.type == 'coach') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const CoachListScreen()),
+          );
+          return;
+        }
+        setState(() {
+          _selectedFacility = f;
+          _selectedTimeSlot = null;
+          _slotReservationCounts = {};
+        });
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         margin: const EdgeInsets.only(bottom: 10),
@@ -436,9 +450,15 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
                           color: AppColors.textPrimary)),
-                  Text('Kapasite: ${f.capacity} kişi',
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.textSecondary)),
+                  Text(
+                    f.type == 'coach'
+                        ? 'Antrenör ile özel ders'
+                        : f.type == 'multi_court'
+                            ? 'Pickleball · Basketbol · Voleybol'
+                            : 'Kapasite: ${f.capacity} kişi',
+                    style: const TextStyle(
+                        fontSize: 12, color: AppColors.textSecondary),
+                  ),
                   if (f.description != null)
                     Text(f.description!,
                         style: const TextStyle(
@@ -446,8 +466,17 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
                 ],
               ),
             ),
-            if (isSelected)
-              Icon(Icons.check_circle_rounded, color: f.color, size: 22),
+            Icon(
+              f.type == 'coach'
+                  ? Icons.chevron_right
+                  : isSelected
+                      ? Icons.check_circle_rounded
+                      : Icons.chevron_right,
+              color: isSelected && f.type != 'coach'
+                  ? f.color
+                  : AppColors.textHint,
+              size: 22,
+            ),
           ],
         ),
       ),
@@ -476,6 +505,7 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
                   _selectedTimeSlot = null;
                   _slotReservationCounts = {};
                 });
+                _loadBookedSlots();
               },
               calendarStyle: CalendarStyle(
                 selectedDecoration: const BoxDecoration(
@@ -513,7 +543,7 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'En fazla 14 gün önceden rezervasyon yapabilirsiniz.',
+                    '14 güne kadar rezervasyon yapabilirsiniz.',
                     style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                   ),
                 ),
@@ -527,6 +557,7 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
 
   Widget _buildTimeSlotStep() {
     final maxCapacity = _selectedFacility?.capacity ?? 1;
+    final now = DateTime.now();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -542,104 +573,136 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
           ),
           const SizedBox(height: 4),
           Text(_selectedFacility?.name ?? '',
-              style: const TextStyle(
-                  fontSize: 13, color: AppColors.textSecondary)),
+              style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
           const SizedBox(height: 16),
 
-          // Lejant
           Row(
             children: [
-              _buildLegend(AppColors.primary.withOpacity(0.08),
-                  AppColors.primary, 'Müsait'),
+              _buildLegend(AppColors.primary.withOpacity(0.08), AppColors.primary, 'Müsait'),
               const SizedBox(width: 16),
-              _buildLegend(const Color.fromARGB(255, 151, 23, 23).withOpacity(0.12), 
-                  const Color.fromARGB(255, 151, 23, 23), 'Dolu'),
+              _buildLegend(
+                  const Color.fromARGB(255, 151, 23, 23).withOpacity(0.12),
+                  const Color.fromARGB(255, 151, 23, 23),
+                  'Dolu'),
               const SizedBox(width: 16),
               _buildLegend(AppColors.primary, Colors.white, 'Seçili'),
             ],
           ),
           const SizedBox(height: 16),
 
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              childAspectRatio: 2.5, // Metin sığması için oran biraz artırıldı
-            ),
-            itemCount: _timeSlots.length,
-            itemBuilder: (context, i) {
-              final slot = _timeSlots[i];
-              final currentBookedCount = _slotReservationCounts[slot] ?? 0;
-              
-              // DEĞİŞİKLİK: Sadece rezervasyon sayısı tesis kapasitesine ulaştığında slot tam dolu sayılır
-              final isFullyBooked = currentBookedCount >= maxCapacity;
-              final isSelected = _selectedTimeSlot == slot;
+          Builder(builder: (context) {
+            final allSlotsFull = _timeSlots.every((slot) {
+              final count = _slotReservationCounts[slot] ?? 0;
+              return count >= maxCapacity;
+            });
 
-              // Doluluk durumuna göre dinamik renkler belirleniyor
-              final Color slotBgColor = isSelected
-                  ? AppColors.primary
-                  : isFullyBooked
-                      ? const Color.fromARGB(255, 151, 23, 23).withOpacity(0.12)
-                      : AppColors.primary.withOpacity(0.08);
-
-              final Color slotTextColor = isSelected
-                  ? Colors.white
-                  : isFullyBooked
-                      ? const Color.fromARGB(255, 151, 23, 23)
-                      : AppColors.primary;
-
-              final Border? slotBorder = isSelected
-                  ? null
-                  : Border.all(
-                      color: isFullyBooked
-                          ? const Color.fromARGB(255, 151, 23, 23).withOpacity(0.3)
-                          : AppColors.primary.withOpacity(0.2),
-                      width: 1,
-                    );
-
-              return GestureDetector(
-                onTap: isFullyBooked
-                    ? null
-                    : () => setState(() => _selectedTimeSlot = slot),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  decoration: BoxDecoration(
-                    color: slotBgColor,
-                    borderRadius: BorderRadius.circular(10),
-                    border: slotBorder,
-                  ),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          slot.split('–')[0].trim(),
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: slotTextColor,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        // Kapasite bilgisini anlık olarak kartın içinde gösteriyoruz
-                        Text(
-                          isFullyBooked ? 'DOLU' : '$currentBookedCount/$maxCapacity Kişi',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: slotTextColor.withOpacity(0.8),
-                          ),
-                        ),
-                      ],
+            if (allSlotsFull && _slotReservationCounts.isNotEmpty) {
+              return Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.event_busy, color: AppColors.error),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Bu gün için tüm saatler dolu. Lütfen farklı bir tarih seçin.',
+                        style: TextStyle(color: AppColors.error, fontSize: 13),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               );
-            },
-          ),
+            }
+
+            return GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                childAspectRatio: 2.5,
+              ),
+              itemCount: _timeSlots.length,
+              itemBuilder: (context, i) {
+                final slot = _timeSlots[i];
+                final currentBookedCount = _slotReservationCounts[slot] ?? 0;
+                final isFullyBooked = currentBookedCount >= maxCapacity;
+                final isSelected = _selectedTimeSlot == slot;
+
+                final slotHour = int.parse(slot.split(':')[0]);
+                final isPast = isSameDay(_selectedDay, now) && slotHour <= now.hour;
+                final isDisabled = isFullyBooked || isPast;
+
+                final Color slotBgColor = isSelected
+                    ? AppColors.primary
+                    : isDisabled
+                        ? const Color.fromARGB(255, 151, 23, 23).withOpacity(0.12)
+                        : AppColors.primary.withOpacity(0.08);
+
+                final Color slotTextColor = isSelected
+                    ? Colors.white
+                    : isDisabled
+                        ? const Color.fromARGB(255, 151, 23, 23)
+                        : AppColors.primary;
+
+                final Border? slotBorder = isSelected
+                    ? null
+                    : Border.all(
+                        color: isDisabled
+                            ? const Color.fromARGB(255, 151, 23, 23).withOpacity(0.3)
+                            : AppColors.primary.withOpacity(0.2),
+                        width: 1,
+                      );
+
+                return GestureDetector(
+                  onTap: isDisabled
+                      ? null
+                      : () => setState(() => _selectedTimeSlot = slot),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    decoration: BoxDecoration(
+                      color: slotBgColor,
+                      borderRadius: BorderRadius.circular(10),
+                      border: slotBorder,
+                    ),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            slot.split('–')[0].trim(),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: slotTextColor,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            isPast
+                                ? 'GEÇTİ'
+                                : isFullyBooked
+                                    ? 'DOLU'
+                                    : '$currentBookedCount/$maxCapacity Kişi',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: slotTextColor.withOpacity(0.8),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          }),
         ],
       ),
     );
@@ -651,13 +714,11 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
         Container(
           width: 16,
           height: 16,
-          decoration: BoxDecoration(
-              color: bg, borderRadius: BorderRadius.circular(4)),
+          decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(4)),
         ),
         const SizedBox(width: 6),
         Text(label,
-            style: const TextStyle(
-                fontSize: 12, color: AppColors.textSecondary)),
+            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
       ],
     );
   }
@@ -689,8 +750,7 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
                 _buildConfirmRow(
                     Icons.calendar_today,
                     'Tarih',
-                    DateFormat('d MMMM y, EEEE', 'tr_TR')
-                        .format(_selectedDay)),
+                    DateFormat('d MMMM y, EEEE', 'tr_TR').format(_selectedDay)),
                 const Divider(height: 24),
                 _buildConfirmRow(
                     Icons.access_time, 'Saat', _selectedTimeSlot ?? '-'),
@@ -718,9 +778,7 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
                   '• Rezervasyon saatinden 10 dakika sonrasında gelmezseniz rezervasyonunuz iptal edilir.\n'
                   '• Spor ekipmanları girişte teslim alınabilir.',
                   style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textSecondary,
-                      height: 1.6),
+                      fontSize: 12, color: AppColors.textSecondary, height: 1.6),
                 ),
               ],
             ),
@@ -747,8 +805,7 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(label,
-                  style: const TextStyle(
-                      fontSize: 11, color: AppColors.textHint)),
+                  style: const TextStyle(fontSize: 11, color: AppColors.textHint)),
               Text(value,
                   style: const TextStyle(
                       fontSize: 14,
@@ -795,9 +852,8 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
               ? () async {
                   if (_currentStep == 1) {
                     final success = await _loadBookedSlots();
-                    if (!success) return; 
+                    if (!success) return;
                   }
-                  
                   if (_currentStep < 3) {
                     setState(() => _currentStep++);
                   } else {
@@ -806,8 +862,7 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
                 }
               : null,
           child: _isLoading
-              ? const CircularProgressIndicator(
-                  color: Colors.white, strokeWidth: 2)
+              ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
               : Text(labels[_currentStep]),
         ),
       ),

@@ -7,6 +7,7 @@ import 'package:tenis_kulubu/core/theme/app_colors.dart';
 import 'package:tenis_kulubu/core/router/app_router.dart';
 import 'package:tenis_kulubu/features/auth/data/auth_repository.dart';
 import 'package:tenis_kulubu/features/announcements/screens/announcements_screen.dart';
+import 'package:tenis_kulubu/features/coach/screens/coach_list_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -245,7 +246,8 @@ class HomeScreen extends ConsumerWidget {
       _FacilityItem('Tenis Kortu', Icons.sports_tennis, AppColors.courtColor, '6 Kort Mevcut'),
       _FacilityItem('Yüzme\nHavuzu', Icons.pool, AppColors.poolColor, 'Olimpik Havuz'),
       _FacilityItem('Spor\nSalonu', Icons.fitness_center, AppColors.gymColor, 'Tam Donanım'),
-      _FacilityItem('Çok Amaçlı\nAlan', Icons.sports_volleyball, AppColors.secondary, 'Basketbol / Voleybol'),
+      _FacilityItem('Çok Amaçlı\nAlan', Icons.sports_volleyball, AppColors.secondary, 'Pickleball ve Daha Fazlası'),
+      _FacilityItem('Antrenör\nDersi', Icons.person_pin, Colors.greenAccent, 'Özel Ders Al'),
     ];
 
     return SizedBox(
@@ -257,7 +259,14 @@ class HomeScreen extends ConsumerWidget {
         itemBuilder: (context, i) {
           final f = facilities[i];
           return GestureDetector(
-            onTap: () => context.go(AppRouter.reservation),
+            onTap: () {
+              if (f.label == 'Antrenör\nDersi') {
+                Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const CoachListScreen()));
+                return;
+              }
+              context.go(AppRouter.reservation);
+            },
             child: Container(
               width: 110,
               padding: const EdgeInsets.all(14),

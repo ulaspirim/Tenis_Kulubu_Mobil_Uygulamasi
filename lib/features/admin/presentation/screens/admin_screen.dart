@@ -23,7 +23,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -32,6 +32,126 @@ class _AdminScreenState extends ConsumerState<AdminScreen>
     super.dispose();
   }
 
+
+  // ── Mevcut antrenörleri listele ──────────────────────────────────────────
+Widget _buildExistingCoachesList() {
+  return StreamBuilder<QuerySnapshot>(
+    stream: FirebaseFirestore.instance.collection('coaches').snapshots(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Padding(
+          padding: EdgeInsets.symmetric(vertical: 8),
+          child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+        );
+      }
+
+      final docs = snapshot.data?.docs ?? [];
+      if (docs.isEmpty) return const SizedBox.shrink();
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Divider(height: 24),
+          const Text(
+            'Mevcut Antrenörler',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 8),
+          ...docs.map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            final name = data['name'] ?? '';
+            final specialty = data['specialty'] ?? '';
+            final price = data['pricePerHour'] ?? 0;
+
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.textHint.withOpacity(0.15)),
+              ),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 18,
+                    backgroundColor: Colors.greenAccent.withOpacity(0.15),
+                    child: const Icon(Icons.person_pin, size: 18, color: Colors.greenAccent),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(name,
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                        Text('$specialty  •  ₺$price/saat',
+                            style: const TextStyle(fontSize: 11, color: AppColors.textHint)),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.error),
+                    onPressed: () => _deleteCoach(doc.id, name),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      );
+    },
+  );
+}
+
+  void _deleteCoach(String docId, String name) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Antrenörü Sil', style: TextStyle(fontWeight: FontWeight.w700)),
+        content: Text('"$name" adlı antrenörü silmek istediğinize emin misiniz?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('İptal'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await FirebaseFirestore.instance.collection('coaches').doc(docId).delete();
+              if (mounted) {
+                Navigator.of(ctx).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('"$name" silindi.'), backgroundColor: AppColors.error),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            child: const Text('Sil'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddCoachDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => _AddCoachDialog(
+        onAdded: (name) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('✅ "$name" eklendi.'),
+                backgroundColor: AppColors.success,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        },
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -67,6 +187,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen>
             indicatorColor: AppColors.primary,
             tabs: const [
               Tab(text: 'Üyeler'),
+              Tab(text: 'Rezervasyonlar'),
               Tab(text: 'İstatistik'),
               Tab(text: 'Ayarlar'),
             ],
@@ -83,6 +204,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen>
           controller: _tabController,
           children: [
             _buildMembersTab(),
+            _buildCoachBookingsTab(),
             _buildStatsTab(),
             _buildSettingsTab(),
           ],
@@ -264,6 +386,137 @@ class _AdminScreenState extends ConsumerState<AdminScreen>
     );
   }
 
+  Widget _buildCoachBookingsTab() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('coach_bookings')
+          .orderBy('date', descending: false)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final docs = snapshot.data?.docs ?? [];
+        final pending = docs.where((d) => d['status'] == 'pending').toList();
+        final others = docs.where((d) => d['status'] != 'pending').toList();
+        final all = [...pending, ...others];
+
+        if (all.isEmpty) {
+          return const Center(
+            child: Text('Henüz randevu yok.', style: TextStyle(color: AppColors.textHint)),
+          );
+        }
+
+        return ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: all.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 10),
+          itemBuilder: (context, i) {
+            final doc = all[i];
+            final data = doc.data() as Map<String, dynamic>;
+            final status = data['status'] as String;
+            final date = (data['date'] as Timestamp).toDate();
+
+            final statusColor = {
+              'pending': AppColors.warning,
+              'confirmed': AppColors.success,
+              'cancelled': AppColors.error,
+              'completed': AppColors.info,
+            }[status] ?? AppColors.textHint;
+
+            final statusLabel = {
+              'pending': 'Bekliyor',
+              'confirmed': 'Onaylandı',
+              'cancelled': 'İptal',
+              'completed': 'Tamamlandı',
+            }[status] ?? '';
+
+            return Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(14),
+                border: status == 'pending'
+                    ? Border.all(color: AppColors.warning.withOpacity(0.4))
+                    : null,
+                boxShadow: AppColors.cardShadow,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(data['userName'] ?? '',
+                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: statusColor.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(statusLabel,
+                            style: TextStyle(color: statusColor, fontSize: 12, fontWeight: FontWeight.w700)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text('👨‍🏫 ${data['coachName']}  •  🕐 ${data['timeSlot']}',
+                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                  Text('📅 ${date.day}/${date.month}/${date.year}  •  ₺${data['price']}',
+                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                  if (data['note'] != null && data['note'] != '') ...[
+                    const SizedBox(height: 4),
+                    Text('📝 ${data['note']}',
+                        style: const TextStyle(color: AppColors.textHint, fontSize: 12)),
+                  ],
+                  if (status == 'pending') ...[
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () async {
+                              await FirebaseFirestore.instance
+                                  .collection('coach_bookings')
+                                  .doc(doc.id)
+                                  .update({'status': 'cancelled'});
+                            },
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.error,
+                              side: BorderSide(color: AppColors.error.withOpacity(0.5)),
+                            ),
+                            child: const Text('Reddet'),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              await FirebaseFirestore.instance
+                                  .collection('coach_bookings')
+                                  .doc(doc.id)
+                                  .update({'status': 'confirmed'});
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.success,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text('Onayla'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
   void _handleMemberAction(String action, UserModel user) async {
     final repo = ref.read(adminRepositoryProvider);
     switch (action) {
@@ -423,6 +676,38 @@ class _AdminScreenState extends ConsumerState<AdminScreen>
         ),
 
         const SizedBox(height: 20),
+
+        _buildSectionHeader(Icons.person_pin, 'Antrenörler'),
+        const SizedBox(height: 12),
+        _buildSettingsCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Kulüp antrenörlerini yönetin. Eklediğiniz antrenörler üyeler tarafından görüntülenip randevu alınabilir.',
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.5),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () => _showAddCoachDialog(context),
+                  icon: const Icon(Icons.person_add_rounded, size: 18),
+                  label: const Text('Yeni Antrenör Ekle'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.greenAccent.shade700,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 13),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              _buildExistingCoachesList(),
+            ],
+          ),
+        ),
+
 
         // ── Duyurular ──
         _buildSectionHeader(Icons.campaign_rounded, 'Duyurular'),
@@ -1837,6 +2122,185 @@ class _AddAnnouncementDialogState extends State<_AddAnnouncementDialog> {
       filled: true,
       fillColor: AppColors.surfaceVariant,
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+    );
+  }
+}
+
+class _AddCoachDialog extends StatefulWidget {
+  final void Function(String name) onAdded;
+  const _AddCoachDialog({required this.onAdded});
+
+  @override
+  State<_AddCoachDialog> createState() => _AddCoachDialogState();
+}
+
+class _AddCoachDialogState extends State<_AddCoachDialog> {
+  final _nameCtrl = TextEditingController();
+  final _specialtyCtrl = TextEditingController();
+  final _priceCtrl = TextEditingController();
+  final _photoCtrl = TextEditingController();
+  bool _isLoading = false;
+
+  // Müsaitlik: her gün için saatler
+  final Map<String, List<String>> _availability = {
+    'monday': [], 'tuesday': [], 'wednesday': [],
+    'thursday': [], 'friday': [], 'saturday': [], 'sunday': [],
+  };
+
+  final _dayLabels = {
+    'monday': 'Pzt', 'tuesday': 'Sal', 'wednesday': 'Çar',
+    'thursday': 'Per', 'friday': 'Cum', 'saturday': 'Cmt', 'sunday': 'Paz',
+  };
+
+  final _allSlots = ['08:00','09:00','10:00','11:00','12:00',
+                     '13:00','14:00','15:00','16:00','17:00',
+                     '18:00','19:00','20:00'];
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _specialtyCtrl.dispose();
+    _priceCtrl.dispose();
+    _photoCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_nameCtrl.text.trim().isEmpty || _priceCtrl.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ad ve ücret zorunludur.')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      await FirebaseFirestore.instance.collection('coaches').add({
+        'name': _nameCtrl.text.trim(),
+        'specialty': _specialtyCtrl.text.trim(),
+        'pricePerHour': double.tryParse(_priceCtrl.text.trim()) ?? 0,
+        'photoUrl': _photoCtrl.text.trim(),
+        'rating': 0.0,
+        'totalSessions': 0,
+        'availability': _availability,
+      });
+
+      if (mounted) {
+        Navigator.of(context).pop();
+        widget.onAdded(_nameCtrl.text.trim());
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Hata: $e'), backgroundColor: AppColors.error),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: const Row(
+        children: [
+          Icon(Icons.person_add_rounded, color: Colors.greenAccent, size: 22),
+          SizedBox(width: 10),
+          Text('Yeni Antrenör Ekle', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17)),
+        ],
+      ),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _field(_nameCtrl, 'Ad Soyad *', Icons.person_outline),
+              const SizedBox(height: 12),
+              _field(_specialtyCtrl, 'Uzmanlık (örn. İleri Seviye)', Icons.star_outline),
+              const SizedBox(height: 12),
+              _field(_priceCtrl, 'Ücret (₺/saat) *', Icons.attach_money, type: TextInputType.number),
+              const SizedBox(height: 12),
+              _field(_photoCtrl, 'Fotoğraf URL (opsiyonel)', Icons.photo_outlined),
+              const SizedBox(height: 20),
+
+              const Text('Müsait Saatler',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+              const SizedBox(height: 10),
+
+              ..._availability.keys.map((day) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(_dayLabels[day]!,
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: _allSlots.map((slot) {
+                      final isSelected = _availability[day]!.contains(slot);
+                      return GestureDetector(
+                        onTap: () => setState(() {
+                          if (isSelected) {
+                            _availability[day]!.remove(slot);
+                          } else {
+                            _availability[day]!.add(slot);
+                            _availability[day]!.sort();
+                          }
+                        }),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: isSelected ? Colors.greenAccent.shade700 : AppColors.surfaceVariant,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(slot,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: isSelected ? Colors.white : AppColors.textHint,
+                              )),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+              )),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('İptal'),
+        ),
+        ElevatedButton(
+          onPressed: _isLoading ? null : _submit,
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent.shade700),
+          child: _isLoading
+              ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+              : const Text('Ekle', style: TextStyle(color: Colors.white)),
+        ),
+      ],
+    );
+  }
+
+  Widget _field(TextEditingController ctrl, String label, IconData icon,
+      {TextInputType type = TextInputType.text}) {
+    return TextField(
+      controller: ctrl,
+      keyboardType: type,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, size: 20),
+        filled: true,
+        fillColor: AppColors.surfaceVariant,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+      ),
     );
   }
 }
