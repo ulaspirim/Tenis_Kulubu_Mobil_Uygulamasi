@@ -18,10 +18,10 @@ Ulaş PİRİM
  
 # Uygulama Yapım Aşamaları ve Test Süreci
 
-## 6-) Front-End Tasarımı
+## Front-End Tasarımı
 Uygulamada flutter yani dart yazılım dilini kullanarak arayüzü oluşturdum. Arka planda Google'nin firebase altyapısını kullanarak veritabanı gibi çalışmaları sergiledim.
 
  [Flutter Yazılım Dosyası](https://github.com/ulaspirim/tenis_kulubu/tree/main)
  
-## 7-) Kontrol ve Test
+## Kontrol ve Test
  [Mobil Uygulama Testleri](https://youtube.com/shorts/ivkp-HrG9Cw?feature=share)
