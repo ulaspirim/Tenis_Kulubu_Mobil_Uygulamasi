@@ -66,7 +66,7 @@ class SupportScreen extends StatelessWidget {
                 ),
                 const Divider(height: 1, color: AppColors.surfaceVariant),
                 _buildFaqTile(
-                  'uyelik_paketimi_nasil_yukseltebilirim'.tr(),
+                  'uyelik.uyelik_paketimi_nasil_yukseltebilirim'.tr(),
                   'uyelik.paket_yukseltme'.tr(),
                 ),
                 _buildFaqTile(
