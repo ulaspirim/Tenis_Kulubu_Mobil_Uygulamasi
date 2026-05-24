@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tenis_kulubu/features/coach/data/coach_booking_model.dart';
 import 'package:tenis_kulubu/features/coach/data/coach_service.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+
 class MyCoachBookingsScreen extends StatelessWidget {
   const MyCoachBookingsScreen({super.key});
 
@@ -15,7 +17,7 @@ class MyCoachBookingsScreen extends StatelessWidget {
       backgroundColor: const Color(0xFF0D1117),
       appBar: AppBar(
         backgroundColor: const Color(0xFF0D1117),
-        title: const Text('Ders Randevularım',
+        title: Text('coach.randevularim'.tr(),
             style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -26,8 +28,8 @@ class MyCoachBookingsScreen extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
-              child: Text('Henüz randevunuz yok.',
+            return Center(
+              child: Text('coach.randevu_yok'.tr(),
                   style: TextStyle(color: Colors.white54)),
             );
           }
@@ -55,10 +57,10 @@ class MyCoachBookingsScreen extends StatelessWidget {
     }[booking.status]!;
 
     final statusLabel = {
-      BookingStatus.pending: 'Bekliyor',
-      BookingStatus.confirmed: 'Onaylandı',
-      BookingStatus.cancelled: 'İptal',
-      BookingStatus.completed: 'Tamamlandı',
+      BookingStatus.pending: 'coach.bekliyor'.tr(),
+      BookingStatus.confirmed: 'coach.onaylandi'.tr(),
+      BookingStatus.cancelled: 'coach.reddedildi'.tr(),
+      BookingStatus.completed: 'coach.tamamlandi'.tr(),
     }[booking.status]!;
 
     return Container(
@@ -110,10 +112,10 @@ class MyCoachBookingsScreen extends StatelessWidget {
                 onPressed: () async {
                   await service.cancelBooking(booking.id);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Randevu iptal edildi.')),
+                    SnackBar(content: Text('coach.iptal_edildi'.tr())),
                   );
                 },
-                child: const Text('İptal Et',
+                child: Text('coach.iptal_et'.tr(),
                     style: TextStyle(color: Colors.red)),
               ),
             ),

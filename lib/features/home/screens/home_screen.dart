@@ -9,6 +9,8 @@ import 'package:tenis_kulubu/features/auth/data/auth_repository.dart';
 import 'package:tenis_kulubu/features/announcements/screens/announcements_screen.dart';
 import 'package:tenis_kulubu/features/coach/screens/coach_list_screen.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -27,16 +29,16 @@ class HomeScreen extends ConsumerWidget {
         final shouldExit = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Uygulamadan Çıkılsın mı?'),
-            content: const Text('Tenis Kulübü uygulamasından çıkmak istediğinize emin misiniz?'),
+            title: Text('uygulama.cikis_yapilsin_mi').tr(),
+            content: Text('uygulama.emin_misiniz').tr(),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Vazgeç'),
+                child: Text('uygulama.vazgec').tr(),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Çıkış Yap', style: TextStyle(color: Colors.red)),
+                child: Text('uygulama.cikis_yap').tr(),
               ),
             ],
           ),
@@ -63,7 +65,7 @@ class HomeScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Hızlı Rezervasyon',
+                    Text(('uygulama.hizli_rezervasyon').tr(),
                         style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w700,
@@ -96,14 +98,14 @@ class HomeScreen extends ConsumerWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Son Duyurular',
+                    Text(('uygulama.son_duyurular').tr(),
                         style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w700,
                             color: AppColors.textPrimary)),
                     TextButton(
                       onPressed: () => context.go(AppRouter.announcements),
-                      child: const Text('Tümü'),
+                      child: Text(('uygulama.tum_duyurular').tr()),
                     ),
                   ],
                 ),
@@ -116,7 +118,7 @@ class HomeScreen extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
                 child: announcementsAsync.when(
                   loading: () => _buildSkeleton(height: 200),
-                  error: (e, _) => Text('Hata: $e'),
+                  error: (e, _) => Text(('uygulama.hata').tr() + ': $e'),
                   data: (items) {
                     if (items.isEmpty) {
                       return Container(
@@ -126,9 +128,11 @@ class HomeScreen extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: AppColors.cardShadow,
                         ),
-                        child: const Center(
-                          child: Text('Henüz duyuru yok.',
-                              style: TextStyle(color: AppColors.textHint)),
+                        child: Center(
+                          child: Text(
+                            'uygulama.henuz_duyuru_yok'.tr(),
+                            style: TextStyle(color: AppColors.textHint),
+                          ),
                         ),
                       );
                     }
@@ -175,15 +179,15 @@ class HomeScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Merhaba, ${user?.firstName ?? 'Üye'} 👋',
+                    'Merhaba, ${user?.firstName ?? 'uyelik.uye'.tr()} 👋',
                     style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 14,
                         fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'Bugün ne oynamak istersiniz?',
+                  Text(
+                    'uygulama.bugun_ne_istersiniz'.tr(),
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -223,7 +227,7 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 onPressed: () {
                   // Bildirim butonunu aktif hale getirdik:
-                  context.push(AppRouter.notifications);
+                  context.go(AppRouter.notifications);
                 },
               ),
               GestureDetector(
@@ -243,11 +247,11 @@ class HomeScreen extends ConsumerWidget {
 
   Widget _buildFacilityCards(BuildContext context) {
     final facilities = [
-      _FacilityItem('Tenis Kortu', Icons.sports_tennis, AppColors.courtColor, '6 Kort Mevcut'),
-      _FacilityItem('Yüzme\nHavuzu', Icons.pool, AppColors.poolColor, 'Olimpik Havuz'),
-      _FacilityItem('Spor\nSalonu', Icons.fitness_center, AppColors.gymColor, 'Tam Donanım'),
-      _FacilityItem('Çok Amaçlı\nAlan', Icons.sports_volleyball, AppColors.secondary, 'Pickleball ve Daha Fazlası'),
-      _FacilityItem('Antrenör\nDersi', Icons.person_pin, Colors.greenAccent, 'Özel Ders Al'),
+      _FacilityItem('uygulama.tenis_kortu'.tr(), Icons.sports_tennis, AppColors.courtColor, 'uygulama.toplam_kort'.tr()),
+      _FacilityItem('uygulama.yuzme_havuzu'.tr(), Icons.pool, AppColors.poolColor, 'uygulama.olimpik_havuz'.tr()),
+      _FacilityItem('uygulama.spor_salonu'.tr(), Icons.fitness_center, AppColors.gymColor, 'uygulama.tam_donanim'.tr()),
+      _FacilityItem('uygulama.cok_amacli_alan'.tr(), Icons.sports_volleyball, AppColors.secondary, 'uygulama.pickleball_ve_daha_fazlası'.tr()),
+      _FacilityItem('uygulama.antrenor_dersi'.tr(), Icons.person_pin, Colors.greenAccent, 'uygulama.özel_ders_al'.tr()),
     ];
 
     return SizedBox(
@@ -260,7 +264,7 @@ class HomeScreen extends ConsumerWidget {
           final f = facilities[i];
           return GestureDetector(
             onTap: () {
-              if (f.label == 'Antrenör\nDersi') {
+              if (f.label == 'uygulama.antrenor_dersi'.tr()) {
                 Navigator.push(context,
                   MaterialPageRoute(builder: (_) => const CoachListScreen()));
                 return;
@@ -349,7 +353,7 @@ class HomeScreen extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  const Text('Aktif Üyelik',
+                  Text('uygulama.aktif_uyelik'.tr(),
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -357,10 +361,10 @@ class HomeScreen extends ConsumerWidget {
                   const SizedBox(height: 4),
                   Text(
                     isCritical
-                        ? '⚠️ $daysLeft gün kaldı!'
+                        ? 'uygulama.uyelik_suresi_kalan'.tr(args: ['$daysLeft'])
                         : isWarning
-                            ? '$daysLeft gün kaldı, yenilemeyi düşünün'
-                            : '$daysLeft gün geçerli',
+                            ? 'uygulama.uyelik_suresi_kalan_warning'.tr(args: ['$daysLeft'])
+                            : 'uygulama.uyelik_suresi_kalan_ok'.tr(args: ['$daysLeft']),
                     style: TextStyle(
                       color: isCritical ? Colors.yellow : Colors.white70,
                       fontSize: 13,

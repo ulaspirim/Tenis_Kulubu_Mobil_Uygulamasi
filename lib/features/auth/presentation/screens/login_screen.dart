@@ -7,6 +7,8 @@ import 'package:tenis_kulubu/core/router/app_router.dart';
 import 'package:tenis_kulubu/features/auth/data/auth_repository.dart';
 import 'package:tenis_kulubu/features/auth/presentation/widgets/auth_text_field.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -83,11 +85,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   }
 
   String _parseAuthError(String error) {
-    if (error.contains('user-not-found')) return 'Bu e-posta ile kayıtlı kullanıcı bulunamadı.';
-    if (error.contains('wrong-password')) return 'Şifre hatalı. Lütfen tekrar deneyin.';
-    if (error.contains('invalid-email')) return 'Geçersiz e-posta adresi.';
-    if (error.contains('too-many-requests')) return 'Çok fazla deneme. Lütfen bekleyiniz.';
-    return 'Giriş başarısız. Lütfen tekrar deneyin.';
+    if (error.contains('user-not-found')) return 'uyelik.kullanici_bulunamadi'.tr();
+    if (error.contains('wrong-password')) return 'uyelik.sifre_hatali'.tr();
+    if (error.contains('invalid-email')) return 'uyelik.eposta_gecerli'.tr();
+    if (error.contains('too-many-requests')) return 'uyelik.cok_fazla_deneme'.tr();
+    return 'uyelik.giris_basarisiz'.tr();
   }
 
   @override
@@ -116,13 +118,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     // Giriş Formu
                     AuthTextField(
                       controller: _emailController,
-                      label: 'E-posta',
+                      label: 'uyelik.eposta'.tr(),
                       hint: 'ornek@email.com',
                       keyboardType: TextInputType.emailAddress,
                       prefixIcon: Icons.email_outlined,
                       validator: (v) {
-                        if (v == null || v.isEmpty) return 'E-posta zorunludur';
-                        if (!v.contains('@')) return 'Geçerli bir e-posta girin';
+                        if (v == null || v.isEmpty) return 'uyelik.eposta_gerekli'.tr();
+                        if (!v.contains('@')) return 'uyelik.eposta_gecerli'.tr();
                         return null;
                       },
                     ),
@@ -131,7 +133,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
                     AuthTextField(
                       controller: _passwordController,
-                      label: 'Şifre',
+                      label: 'uyelik.sifre'.tr(),
                       hint: '••••••••',
                       obscureText: _obscurePassword,
                       prefixIcon: Icons.lock_outline,
@@ -146,8 +148,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             setState(() => _obscurePassword = !_obscurePassword),
                       ),
                       validator: (v) {
-                        if (v == null || v.isEmpty) return 'Şifre zorunludur';
-                        if (v.length < 6) return 'Şifre en az 6 karakter olmalıdır';
+                        if (v == null || v.isEmpty) return 'uyelik.sifre_zorunludur'.tr();
+                        if (v.length < 6) return 'uyelik.sifre_en_az_6_karakter'.tr();
                         return null;
                       },
                     ),
@@ -159,8 +161,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: () => context.push(AppRouter.forgotPassword),
-                        child: const Text(
-                          'Şifremi Unuttum',
+                        child: Text(
+                          'uyelik.sifremi_unuttum'.tr(),
                           style: TextStyle(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w600,
@@ -174,7 +176,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
                     // Giriş Butonu
                     AuthButton(
-                      label: 'Giriş Yap',
+                      label: 'uyelik.giris_yap'.tr(),
                       isLoading: _isLoading,
                       onPressed: _login,
                     ),
@@ -188,7 +190,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
-                            'veya',
+                            'uyelik.veya'.tr(),
                             style: TextStyle(
                               color: AppColors.textHint,
                               fontSize: 13,
@@ -205,8 +207,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          'Hesabınız yok mu? ',
+                        Text(
+                          'uyelik.hesap_yok_mu'.tr(),
                           style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 14,
@@ -214,8 +216,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         ),
                         GestureDetector(
                           onTap: () => context.push(AppRouter.register),
-                          child: const Text(
-                            'Kayıt Ol',
+                          child: Text(
+                            'uyelik.kayit_ol'.tr(),
                             style: TextStyle(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w700,
@@ -251,7 +253,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           ),
           child: const Center(
             child: Text(
-              'ATİK',
+              'ULAS',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 22,
@@ -264,8 +266,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
         const SizedBox(height: 24),
 
-        const Text(
-          'Hoş Geldiniz',
+        Text(
+          'uyelik.hosgeldiniz'.tr(),
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.w700,
@@ -275,8 +277,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
         const SizedBox(height: 8),
 
-        const Text(
-          'Antalya Tenis İhtisas Kulübü',
+        Text(
+          'uyelik.kulup_adi'.tr(),
           style: TextStyle(
             fontSize: 14,
             color: AppColors.textSecondary,

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:tenis_kulubu/shared/models/coach_model.dart';
 import 'package:tenis_kulubu/features/coach/screens/coach_booking_screen.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+
 class CoachDetailScreen extends StatelessWidget {
   final CoachModel coach;
   const CoachDetailScreen({super.key, required this.coach});
@@ -65,11 +67,11 @@ class CoachDetailScreen extends StatelessWidget {
                   // İstatistik kartları
                   Row(
                     children: [
-                      _statCard('⭐ Puan', coach.rating.toStringAsFixed(1)),
+                      _statCard('coach.puan'.tr(), coach.rating.toStringAsFixed(1)),
                       const SizedBox(width: 12),
-                      _statCard('🎾 Ders', '${coach.totalSessions}'),
+                      _statCard('coach.ders'.tr(), '${coach.totalSessions}'),
                       const SizedBox(width: 12),
-                      _statCard('💰 /Saat', '₺${coach.pricePerHour.toInt()}'),
+                      _statCard('coach.saat'.tr(), '₺${coach.pricePerHour.toInt()}'),
                     ],
                   ),
                   const SizedBox(height: 32),
@@ -91,8 +93,8 @@ class CoachDetailScreen extends StatelessWidget {
                           builder: (_) => CoachBookingScreen(coach: coach),
                         ),
                       ),
-                      child: const Text(
-                        'Randevu Al',
+                      child: Text(
+                        'coach.randevu_al'.tr(),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,

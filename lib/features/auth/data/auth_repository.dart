@@ -32,7 +32,7 @@ class AuthRepository {
     );
 
     final user = credential.user;
-    if (user == null) throw Exception('Giriş başarısız');
+    if (user == null) throw Exception('uyelik.giris_basarisiz');
 
     return _getUserModel(user.uid);
   }
@@ -52,7 +52,7 @@ class AuthRepository {
     );
 
     final user = credential.user;
-    if (user == null) throw Exception('Kayıt başarısız');
+    if (user == null) throw Exception('uyelik.kayit_basarisiz');
 
     // Kullanıcı adını güncelle
     await user.updateDisplayName('$firstName $lastName');
@@ -96,7 +96,7 @@ class AuthRepository {
         .doc(uid)
         .get();
 
-    if (!doc.exists) throw Exception('Kullanıcı bulunamadı');
+    if (!doc.exists) throw Exception('uyelik.kullanici_bulunamadi');
     return UserModel.fromFirestore(doc);
   }
 
@@ -135,7 +135,7 @@ class AuthRepository {
     required String newPassword,
   }) async {
     final user = _auth.currentUser;
-    if (user == null) throw Exception('Kullanıcı bulunamadı');
+    if (user == null) throw Exception('uyelik.kullanici_bulunamadi');
 
     final credential = EmailAuthProvider.credential(
       email: user.email!,

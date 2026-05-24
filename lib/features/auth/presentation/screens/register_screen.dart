@@ -7,6 +7,7 @@ import 'package:tenis_kulubu/core/router/app_router.dart';
 import 'package:tenis_kulubu/features/auth/data/auth_repository.dart';
 import 'package:tenis_kulubu/features/auth/presentation/widgets/auth_text_field.dart';
 
+import 'package:easy_localization/easy_localization.dart';
 // ─────────────────────────────────────────
 // KAYIT OL EKRANI
 // ─────────────────────────────────────────
@@ -47,7 +48,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (!_acceptedTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kullanım koşullarını kabul etmeniz gerekmektedir.')),
+        const SnackBar(content: Text('uyelik.kullanim_kosullarini_kabul'), backgroundColor: AppColors.error, behavior: SnackBarBehavior.floating),
       );
       return;
     }
@@ -84,7 +85,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Kayıt Ol'),
+        title: Text('uyelik.kayit_ol').tr(),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_rounded),
           onPressed: () => context.pop(),
@@ -97,8 +98,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'Üyelik Bilgileriniz',
+              Text(
+                'uyelik.uyelik_bilgileriniz'.tr(),
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
@@ -106,8 +107,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
-                'Kulüp üye numaranızla kayıt olabilirsiniz.',
+              Text(
+                'uyelik.kulup_uye_numarasi_ile_kayit'.tr(),
                 style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
               ),
               const SizedBox(height: 28),
@@ -117,19 +118,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   Expanded(
                     child: AuthTextField(
                       controller: _firstNameCtrl,
-                      label: 'Ad',
-                      hint: 'Adınız',
+                      label: 'uyelik.ad',
+                      hint: 'uyelik.adiniz',
                       prefixIcon: Icons.person_outline,
-                      validator: (v) => v!.isEmpty ? 'Ad zorunludur' : null,
+                      validator: (v) => v!.isEmpty ? 'uyelik.ad_zorunludur'.tr() : null,
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: AuthTextField(
                       controller: _lastNameCtrl,
-                      label: 'Soyad',
-                      hint: 'Soyadınız',
-                      validator: (v) => v!.isEmpty ? 'Soyad zorunludur' : null,
+                      label: 'uyelik.soyad',
+                      hint: 'uyelik.soyadiniz',
+                      prefixIcon: Icons.person_outline,
+                      validator: (v) => v!.isEmpty ? 'uyelik.soyad_zorunludur'.tr() : null,
                     ),
                   ),
                 ],
@@ -138,13 +140,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
               AuthTextField(
                 controller: _emailCtrl,
-                label: 'E-posta',
+                label: 'uyelik.email',
                 hint: 'ornek@email.com',
                 keyboardType: TextInputType.emailAddress,
                 prefixIcon: Icons.email_outlined,
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'E-posta zorunludur';
-                  if (!v.contains('@')) return 'Geçerli bir e-posta girin';
+                  if (v == null || v.isEmpty) return 'uyelik.email_gerekli'.tr();
+                  if (!v.contains('@')) return 'uyelik.email_gecerli'.tr();
                   return null;
                 },
               ),
@@ -152,7 +154,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
               AuthTextField(
                 controller: _phoneCtrl,
-                label: 'Telefon (isteğe bağlı)',
+                label: 'uyelik.telefon',
                 hint: '05XX XXX XX XX',
                 keyboardType: TextInputType.phone,
                 prefixIcon: Icons.phone_outlined,
@@ -161,17 +163,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
               AuthTextField(
                 controller: _membershipNumCtrl,
-                label: 'Üyelik Numarası',
-                hint: 'ATİK-XXXX',
+                label: 'uyelik.kulup_uye_numarasi',
+                hint: 'ULAS-XXXX',
                 prefixIcon: Icons.card_membership_outlined,
-                validator: (v) => v!.isEmpty ? 'Üyelik numarası zorunludur' : null,
+                validator: (v) => v!.isEmpty ? 'uyelik.kulup_uye_numarasi_zorunludur'.tr() : null,
               ),
               const SizedBox(height: 16),
 
               AuthTextField(
                 controller: _passwordCtrl,
-                label: 'Şifre',
-                hint: 'En az 6 karakter',
+                label: 'uyelik.sifre',
+                hint: 'uyelik.sifre_en_az_6_karakter',
                 obscureText: _obscurePassword,
                 prefixIcon: Icons.lock_outline,
                 suffixIcon: IconButton(
@@ -182,8 +184,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       setState(() => _obscurePassword = !_obscurePassword),
                 ),
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'Şifre zorunludur';
-                  if (v.length < 6) return 'Şifre en az 6 karakter olmalıdır';
+                  if (v == null || v.isEmpty) return 'uyelik.sifre_zorunludur'.tr();
+                  if (v.length < 6) return 'uyelik.sifre_en_az_6_karakter'.tr();
                   return null;
                 },
               ),
@@ -191,8 +193,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
               AuthTextField(
                 controller: _confirmPasswordCtrl,
-                label: 'Şifre Tekrar',
-                hint: 'Şifrenizi tekrar girin',
+                label: 'uyelik.sifre_tekrar',
+                hint: 'uyelik.sifre_tekrar_girin',
                 obscureText: _obscureConfirm,
                 prefixIcon: Icons.lock_outline,
                 textInputAction: TextInputAction.done,
@@ -204,7 +206,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       setState(() => _obscureConfirm = !_obscureConfirm),
                 ),
                 validator: (v) {
-                  if (v != _passwordCtrl.text) return 'Şifreler eşleşmiyor';
+                  if (v != _passwordCtrl.text) return 'uyelik.sifreler_eslesmiyor'.tr();
                   return null;
                 },
               ),
@@ -230,15 +232,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           fontFamily: 'Poppins',
                         ),
                         children: [
-                          const TextSpan(text: 'Kulüp '),
+                          TextSpan(text: 'uyelik.kulup'.tr()),
                           TextSpan(
-                            text: 'kullanım koşullarını',
+                            text: 'uyelik.kullanim_kosullarini'.tr(),
                             style: const TextStyle(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const TextSpan(text: ' okudum ve kabul ediyorum.'),
+                          TextSpan(text: ' uyelik.okudum_ve_kabul_ediyorum'.tr()),
                         ],
                       ),
                     ),
@@ -248,7 +250,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               const SizedBox(height: 28),
 
               AuthButton(
-                label: 'Kayıt Ol',
+                label: 'uyelik.kayit_ol'.tr(),
                 isLoading: _isLoading,
                 onPressed: _register,
               ),
@@ -257,14 +259,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    'Zaten hesabınız var mı? ',
+                  Text(
+                    'uyelik.zaten_hesabiniz_var_mi'.tr(),
                     style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
                   ),
                   GestureDetector(
                     onTap: () => context.pop(),
-                    child: const Text(
-                      'Giriş Yap',
+                    child: Text(
+                      'uyelik.giris_yap'.tr(),
                       style: TextStyle(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w700,

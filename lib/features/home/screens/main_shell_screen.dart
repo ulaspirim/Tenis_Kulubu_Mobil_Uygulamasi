@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:tenis_kulubu/core/theme/app_colors.dart';
 import 'package:tenis_kulubu/core/router/app_router.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+
 // ─────────────────────────────────────────
 // MAIN SHELL — Bottom Navigation
 // ─────────────────────────────────────────
@@ -19,12 +21,12 @@ class MainShellScreen extends ConsumerStatefulWidget {
 class _MainShellScreenState extends ConsumerState<MainShellScreen> {
   int _currentIndex = 0;
 
-  final List<_NavItem> _navItems = const [
-    _NavItem(label: 'Ana Sayfa', icon: Icons.home_outlined, activeIcon: Icons.home_rounded, route: AppRouter.home),
-    _NavItem(label: 'Rezervasyon', icon: Icons.calendar_month_outlined, activeIcon: Icons.calendar_month_rounded, route: AppRouter.reservation),
-    _NavItem(label: 'Duyurular', icon: Icons.campaign_outlined, activeIcon: Icons.campaign_rounded, route: AppRouter.announcements),
-    _NavItem(label: 'Sohbet', icon: Icons.chat_bubble_outline_rounded, activeIcon: Icons.chat_bubble_rounded, route: AppRouter.chat),
-    _NavItem(label: 'Profil', icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded, route: AppRouter.profile),
+  final List<_NavItem> _navItems = [
+    _NavItem(label: 'ana_ekran.ana_sayfa'.tr(), icon: Icons.home_outlined, activeIcon: Icons.home_rounded, route: AppRouter.home),
+    _NavItem(label: 'ana_ekran.rezervasyon'.tr(), icon: Icons.calendar_month_outlined, activeIcon: Icons.calendar_month_rounded, route: AppRouter.reservation),
+    _NavItem(label: 'ana_ekran.duyurular'.tr(), icon: Icons.campaign_outlined, activeIcon: Icons.campaign_rounded, route: AppRouter.announcements),
+    _NavItem(label: 'ana_ekran.sohbet'.tr(), icon: Icons.chat_bubble_outline_rounded, activeIcon: Icons.chat_bubble_rounded, route: AppRouter.chat),
+    _NavItem(label: 'ana_ekran.profil'.tr(), icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded, route: AppRouter.profile),
   ];
 
   void _onTabTapped(int index) {

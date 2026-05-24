@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -7,6 +8,8 @@ import 'package:tenis_kulubu/core/theme/app_colors.dart';
 import 'package:tenis_kulubu/features/auth/data/auth_repository.dart';
 import 'package:tenis_kulubu/features/coach/data/coach_booking_model.dart';
 import 'package:tenis_kulubu/features/coach/data/coach_service.dart';
+
+import 'package:easy_localization/easy_localization.dart';
 
 // =========================================================================
 // 1. VERİ MODELİ (Genişletilmiş MyReservationData)
@@ -107,7 +110,7 @@ final coachReservationsProvider = StreamProvider<List<MyReservationData>>((ref) 
 
       return MyReservationData(
         id: b.id,
-        facilityName: '${b.coachName} - Özel Ders',
+        facilityName: '${b.coachName} - ${'coach.ozel_ders'.tr()}',
         facilityType: 'coach',
         startTime: b.timeSlot,
         endTime: '', 
@@ -122,7 +125,7 @@ final coachReservationsProvider = StreamProvider<List<MyReservationData>>((ref) 
   }).handleError((error) {
     // Eğer koç servisinde hala indeks hatası varsa uygulamayı çökertmesin, 
     // boş liste dönsün ve sadece tesis rezervasyonları listelenebilsin.
-    debugPrint("Koç servis indeksi eksik: $error");
+    debugPrint("${'coach.servis_indeksi'.tr()}: $error");
     return <MyReservationData>[];
   });
 });
@@ -177,8 +180,8 @@ class MyReservationsScreen extends ConsumerWidget {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Rezervasyon başarıyla iptal edildi.'),
+          SnackBar(
+            content: Text('coach.rezervasyon_iptal_edildi'.tr()),
             backgroundColor: AppColors.success,
             behavior: SnackBarBehavior.floating,
           ),
@@ -188,7 +191,7 @@ class MyReservationsScreen extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('İptal edilirken bir hata oluştu: $e'),
+            content: Text('coach.hata_randevu'.tr()),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),
@@ -202,12 +205,16 @@ class MyReservationsScreen extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Rezervasyonu İptal Et', style: TextStyle(fontWeight: FontWeight.w700)),
-        content: Text('${reservation.facilityName} için olan rezervasyonunuzu iptal etmek istediğinize emin misiniz?'),
+        title: Text('rezervasyon.iptal'.tr(), style: TextStyle(fontWeight: FontWeight.w700)),
+        content: Text(
+          'rezervasyon.iptal_onay'.tr(
+            args: [reservation.facilityName],
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Vazgeç'),
+            child: Text('uygulama.vazgec'.tr()),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -215,7 +222,7 @@ class MyReservationsScreen extends ConsumerWidget {
               await _cancelReservation(context, reservation);
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('İptal Et'),
+            child: Text('coach.iptal_et'.tr()),
           ),
         ],
       ),
@@ -230,21 +237,21 @@ class MyReservationsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Rezervasyonlarım'),
+        title: Text('uyelik.rezervasyonlarim'.tr(), style: TextStyle(fontWeight: FontWeight.w700)),
       ),
       body: reservationsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Hata oluştu: $e')),
         data: (reservations) {
           if (reservations.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.calendar_today_outlined, size: 56, color: AppColors.textHint),
                   SizedBox(height: 12),
                   Text(
-                    'Henüz bir rezervasyonunuz bulunmuyor.',
+                    'coach.rezervasyon_yok'.tr(),
                     style: TextStyle(color: AppColors.textHint),
                   ),
                 ],
@@ -270,16 +277,16 @@ class MyReservationsScreen extends ConsumerWidget {
     final isPast = res.date.isBefore(DateTime.now().subtract(const Duration(days: 1)));
     
     // Temel durum etiket ve renk atamaları
-    String statusLabel = !res.isActive ? 'İptal Edildi' : (isPast ? 'Tamamlandı' : 'Aktif');
+    String statusLabel = !res.isActive ? 'coach.iptal_edildi'.tr() : (isPast ? 'coach.tamamlandi'.tr() : 'coach.aktif'.tr());
     Color statusColor = res.isActive && !isPast ? AppColors.success : AppColors.textHint;
 
     // Koç Randevularına Özel Durum Etiket Yönetimi (Bekliyor / Onaylandı durumları için)
     if (res.isCoachBooking && res.isActive && !isPast) {
       if (res.coachBookingStatus == BookingStatus.pending) {
-        statusLabel = 'Bekliyor';
+        statusLabel = 'coach.bekliyor'.tr();
         statusColor = Colors.orange;
       } else if (res.coachBookingStatus == BookingStatus.confirmed) {
-        statusLabel = 'Onaylandı';
+        statusLabel = 'coach.onaylandi'.tr();
         statusColor = const Color(0xFF4CAF50);
       }
     }
@@ -386,7 +393,7 @@ class MyReservationsScreen extends ConsumerWidget {
                     onPressed: () => _showCancelDialog(context, res),
                     constraints: const BoxConstraints(),
                     padding: EdgeInsets.zero,
-                    tooltip: 'İptal Et',
+                    tooltip: 'coach.iptal_et'.tr(),
                   ),
                 ],
               ],

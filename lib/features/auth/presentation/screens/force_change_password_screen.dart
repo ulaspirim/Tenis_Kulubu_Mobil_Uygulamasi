@@ -8,6 +8,8 @@ import 'package:tenis_kulubu/core/theme/app_colors.dart';
 import 'package:tenis_kulubu/core/router/app_router.dart';
 import 'package:tenis_kulubu/features/auth/presentation/widgets/auth_text_field.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+
 class ForceChangePasswordScreen extends ConsumerStatefulWidget {
   const ForceChangePasswordScreen({super.key});
 
@@ -38,7 +40,7 @@ class _ForceChangePasswordScreenState
 
     try {
       final user = FirebaseAuth.instance.currentUser;
-      if (user == null) throw Exception('Kullanıcı bulunamadı');
+      if (user == null) throw Exception('uyelik.kullanici_bulunamadi'.tr());
 
       // Şifreyi güncelle
       await user.updatePassword(_newPasswordCtrl.text);
@@ -68,11 +70,11 @@ class _ForceChangePasswordScreenState
   String _parseError(String code) {
     switch (code) {
       case 'weak-password':
-        return 'Şifre en az 6 karakter olmalıdır.';
+        return 'uyelik.sifre_en_az_6_karakter'.tr();
       case 'requires-recent-login':
-        return 'Güvenlik için lütfen tekrar giriş yapın.';
+        return 'uyelik.requires-recent-login'.tr();
       default:
-        return 'Bir hata oluştu. Lütfen tekrar deneyin.';
+        return 'uyelik.uye_hata'.tr();
     }
   }
 
@@ -106,8 +108,8 @@ class _ForceChangePasswordScreenState
 
                 const SizedBox(height: 32),
 
-                const Text(
-                  'Şifrenizi Belirleyin',
+                Text(
+                  'uyelik.sifrenizi_belirleyin'.tr(),
                   style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w700,
@@ -118,8 +120,8 @@ class _ForceChangePasswordScreenState
 
                 const SizedBox(height: 8),
 
-                const Text(
-                  'Hesabınıza ilk girişiniz. Güvenliğiniz için lütfen yeni bir şifre belirleyin.',
+                Text(
+                  'uyelik.hesabiniza_ilk_girişiniz'.tr(),
                   style: TextStyle(
                     fontSize: 14,
                     color: AppColors.textSecondary,
@@ -132,8 +134,8 @@ class _ForceChangePasswordScreenState
 
                 AuthTextField(
                   controller: _newPasswordCtrl,
-                  label: 'Yeni Şifre',
-                  hint: 'En az 6 karakter',
+                  label: 'uyelik.yeni_sifre'.tr(),
+                  hint: 'uyelik.sifre_en_az_6_karakter'.tr(),
                   obscureText: _obscureNew,
                   prefixIcon: Icons.lock_outline,
                   suffixIcon: IconButton(
@@ -144,8 +146,8 @@ class _ForceChangePasswordScreenState
                         setState(() => _obscureNew = !_obscureNew),
                   ),
                   validator: (v) {
-                    if (v == null || v.isEmpty) return 'Şifre zorunludur';
-                    if (v.length < 6) return 'En az 6 karakter olmalıdır';
+                    if (v == null || v.isEmpty) return 'uyelik.sifre_zorunludur'.tr();
+                    if (v.length < 6) return 'uyelik.sifre_en_az_6_karakter'.tr();
                     return null;
                   },
                 ),
@@ -154,8 +156,8 @@ class _ForceChangePasswordScreenState
 
                 AuthTextField(
                   controller: _confirmPasswordCtrl,
-                  label: 'Şifre Tekrar',
-                  hint: 'Şifrenizi tekrar girin',
+                  label: 'uyelik.sifre_tekrar'.tr(),
+                  hint: 'uyelik.sifre_tekrar_girin'.tr(),
                   obscureText: _obscureConfirm,
                   prefixIcon: Icons.lock_outline,
                   textInputAction: TextInputAction.done,
@@ -167,7 +169,7 @@ class _ForceChangePasswordScreenState
                         setState(() => _obscureConfirm = !_obscureConfirm),
                   ),
                   validator: (v) {
-                    if (v != _newPasswordCtrl.text) return 'Şifreler eşleşmiyor';
+                    if (v != _newPasswordCtrl.text) return 'uyelik.sifreler_eslesmiyor'.tr();
                     return null;
                   },
                 ),
@@ -181,8 +183,8 @@ class _ForceChangePasswordScreenState
                     child: _isLoading
                         ? const CircularProgressIndicator(
                             color: Colors.white, strokeWidth: 2)
-                        : const Text(
-                            'Şifremi Belirle ve Devam Et',
+                        : Text(
+                            'uyelik.sifremi_belirle_ve_devam_et'.tr(),
                             style: TextStyle(
                                 fontSize: 15, fontWeight: FontWeight.w700),
                           ),

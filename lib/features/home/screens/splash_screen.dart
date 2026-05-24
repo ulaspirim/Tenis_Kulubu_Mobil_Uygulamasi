@@ -5,6 +5,8 @@ import 'package:tenis_kulubu/core/theme/app_colors.dart';
 import 'package:tenis_kulubu/core/router/app_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -93,8 +95,8 @@ class _SplashScreenState extends State<SplashScreen>
                   const SizedBox(height: 32),
                   
                   // Kulüp Adı (Büyük ve Belirgin)
-                  const Text(
-                    'ULAŞ TENIS KULÜBÜ',
+                  Text(
+                    'ULAŞ TENİS KULÜBÜ',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 22,
@@ -107,7 +109,7 @@ class _SplashScreenState extends State<SplashScreen>
                   
                   // Alt Başlık / Slogan
                   Text(
-                    'Mobil Uygulaması',
+                    'ana_ekran.mobil_uygulama'.tr(),
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.6),
                       fontSize: 14,

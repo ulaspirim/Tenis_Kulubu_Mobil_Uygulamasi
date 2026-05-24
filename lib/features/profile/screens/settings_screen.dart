@@ -6,6 +6,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:tenis_kulubu/core/theme/app_colors.dart';
 import 'package:tenis_kulubu/core/router/app_router.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+
 // ─── Desteklenen diller ───────────────────────────────────────────────────────
 class _Language {
   final String label;      // Ekranda gösterilecek isim
@@ -147,7 +149,7 @@ class SettingsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Ayarlar'),
+        title: Text('admin.ayarlar'.tr()),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_rounded),
           onPressed: () => context.push(AppRouter.profile),
@@ -156,10 +158,10 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         children: [
           _buildSection(
-            'Hesap & Tercihler',
+            'uyelik.hesap_tercihleri'.tr(),
             [
               _buildTile(
-                title: 'Bildirim Ayarları',
+                title: 'bildirimler.bildirim_ayarlari'.tr(),
                 icon: Icons.notifications_none_rounded,
                 onTap: () => context.push(AppRouter.notificationSettings),
               ),
@@ -167,28 +169,27 @@ class SettingsScreen extends ConsumerWidget {
             context,
           ),
           _buildSection(
-            'Uygulama',
-            [
+            'uyelik.uygulama'.tr(),            [
               // ✅ Dil tile'ı — seçili dili gösteriyor, tıklayınca picker açılıyor
               _buildTile(
-                title: 'Dil',
+                title: 'uyelik.dil'.tr(),
                 value: '${currentLang.flagEmoji} ${currentLang.nativeLabel}',
                 icon: Icons.language_outlined,
                 onTap: () => _showLanguagePicker(context),
               ),
               _buildTile(
-                title: 'Uygulama Versiyonu',
+                title: 'uyelik.uygulama_versiyonu'.tr(),
                 value: '1.0.0',
                 icon: Icons.info_outline,
                 onTap: null, // Tıklanamaz, ok ikonu gösterilmez
               ),
               _buildTile(
-                title: 'Gizlilik Politikası',
+                title: 'uyelik.gizlilik_politikasi'.tr(),
                 icon: Icons.privacy_tip_outlined,
                 onTap: () {}, // TODO: URL aç
               ),
               _buildTile(
-                title: 'Kullanım Koşulları',
+                title: 'uyelik.kullanim_kosullari'.tr(),
                 icon: Icons.description_outlined,
                 onTap: () {}, // TODO: URL aç
               ),

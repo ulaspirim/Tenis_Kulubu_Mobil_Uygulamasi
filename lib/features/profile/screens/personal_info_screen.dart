@@ -8,6 +8,8 @@ import 'package:tenis_kulubu/core/theme/app_colors.dart';
 import 'package:tenis_kulubu/features/auth/data/auth_repository.dart';
 import 'package:tenis_kulubu/features/auth/presentation/widgets/auth_text_field.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+
 class PersonalInfoScreen extends ConsumerStatefulWidget {
   const PersonalInfoScreen({super.key});
 
@@ -57,8 +59,8 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Bilgileriniz güncellendi.'),
+          SnackBar(
+            content: Text('admin.uye_bilgileri_guncellendi').tr(),
             backgroundColor: AppColors.success,
             behavior: SnackBarBehavior.floating,
           ),
@@ -69,7 +71,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Hata: $e'),
+            content: Text(('uyelik.hata').tr() + ' $e'),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),
@@ -93,7 +95,7 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Kişisel Bilgiler'),
+        title: Text(('uyelik.kisisel_bilgiler').tr()),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_rounded),
           onPressed: () => context.pop(),
@@ -149,24 +151,24 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
 
                   AuthTextField(
                     controller: _firstNameCtrl,
-                    label: 'Ad',
-                    hint: 'Adınız',
+                    label: 'uyelik.ad'.tr(),
+                    hint: 'uyelik.adiniz'.tr(),
                     prefixIcon: Icons.person_outline,
                   ),
                   const SizedBox(height: 16),
 
                   AuthTextField(
                     controller: _lastNameCtrl,
-                    label: 'Soyad',
-                    hint: 'Soyadınız',
+                    label: 'uyelik.soyad'.tr(),
+                    hint: 'uyelik.soyadiniz'.tr(),
                     prefixIcon: Icons.person_outline,
                   ),
                   const SizedBox(height: 16),
 
                   AuthTextField(
                     controller: _phoneCtrl,
-                    label: 'Telefon',
-                    hint: '+90 5XX XXX XX XX',
+                    label: 'uyelik.telefon'.tr(),
+                    hint: '+90 *** *** ** **'.tr(),
                     prefixIcon: Icons.phone_outlined,
                     keyboardType: TextInputType.phone,
                   ),
@@ -179,8 +181,8 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
                       child: _isSaving
                           ? const CircularProgressIndicator(
                               color: Colors.white, strokeWidth: 2)
-                          : const Text(
-                              'Kaydet',
+                          : Text(
+                              'uyelik.kaydet'.tr(),
                               style: TextStyle(
                                   fontSize: 15, fontWeight: FontWeight.w700),
                             ),

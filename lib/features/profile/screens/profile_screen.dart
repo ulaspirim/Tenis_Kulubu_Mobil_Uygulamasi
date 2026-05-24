@@ -9,6 +9,8 @@ import 'package:tenis_kulubu/features/auth/data/auth_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+
 // ─────────────────────────────────────────
 // PROFİL EKRANI
 // ─────────────────────────────────────────
@@ -23,8 +25,8 @@ class ProfileScreen extends ConsumerWidget {
       loading: () => const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       ),
-      error: (e, _) => const Scaffold(
-        body: Center(child: Text('Hata oluştu')),
+      error: (e, _) => Scaffold(
+        body: Center(child: Text(('uyelik.hata').tr())),
       ),
       data: (user) {
         if (user == null) return const Scaffold(
@@ -36,7 +38,7 @@ class ProfileScreen extends ConsumerWidget {
         return Scaffold(
           backgroundColor: AppColors.background,
           appBar: AppBar(
-            title: const Text('Profilim'),
+            title: Text(('uyelik.profilim').tr()),
             actions: [
               IconButton(
                 icon: const Icon(Icons.settings_outlined),
@@ -54,7 +56,7 @@ class ProfileScreen extends ConsumerWidget {
                 if (user.isAdmin)
                   _buildMenuItem(
                     icon: Icons.admin_panel_settings_outlined,
-                    label: 'Admin Paneli',
+                    label: 'ana_ekran.admin_paneli'.tr(),
                     onTap: () => context.go(AppRouter.admin),
                     color: AppColors.secondary,
                   ),
@@ -70,11 +72,11 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildAvatarSection(BuildContext context, String fullName, String membershipNumber, String membershipType, String initials) {
     final membershipLabel = {
-      'standard': 'Standart Üye',
-      'premium': 'Premium Üye',
-      'family': 'Aile Üyesi',
-      'student': 'Öğrenci Üye',
-    }[membershipType] ?? 'Üye';
+      'standard': 'uyelik.standart'.tr(),
+      'premium': 'uyelik.premium'.tr(),
+      'family': 'uyelik.family'.tr(),
+      'student': 'uyelik.student'.tr(),
+    }[membershipType] ?? 'uyelik.uye'.tr();
 
     return Container(
       width: double.infinity,
@@ -157,14 +159,14 @@ class ProfileScreen extends ConsumerWidget {
                   .snapshots(),
               builder: (context, snap) {
                 final count = snap.data?.docs.length ?? 0;
-                return _buildStat('$count', 'Rezervasyon');
+                return _buildStat('$count', 'ana_ekran.rezervasyon'.tr());
               },
             ),
           ),
           _buildDividerWidget(),
 
           // Turnuva sayısı — şimdilik sabit, ilerleyen adımda dinamik yapılır
-          Expanded(child: _buildStat('0', 'Turnuva')),
+          Expanded(child: _buildStat('0', 'ana_ekran.turnuva'.tr())),
           _buildDividerWidget(),
 
           // Üyelik günü
@@ -175,12 +177,29 @@ class ProfileScreen extends ConsumerWidget {
                   .doc(uid)
                   .snapshots(),
               builder: (context, snap) {
-                if (!snap.hasData) return _buildStat('-', 'Gün Üyelik');
+                final label = 'uyelik.gunluk_uye'.tr();
+
+                if (!snap.hasData) {
+                  return _buildStat('-', label);
+                }
+
                 final data = snap.data!.data() as Map<String, dynamic>?;
-                if (data == null) return _buildStat('-', 'Gün Üyelik');
-                final createdAt = (data['createdAt'] as Timestamp).toDate();
+                if (data == null) {
+                  return _buildStat('-', label);
+                }
+
+                final timestamp = data['createdAt'];
+                if (timestamp is! Timestamp) {
+                  return _buildStat('-', label);
+                }
+
+                final createdAt = timestamp.toDate();
                 final days = DateTime.now().difference(createdAt).inDays;
-                return _buildStat('$days', 'Gün Üyelik');
+
+                return _buildStat(
+                  '$days',
+                  label,
+                );
               },
             ),
           ),
@@ -229,37 +248,37 @@ class ProfileScreen extends ConsumerWidget {
         children: [
           _buildMenuItem(
             icon: Icons.person_outline,
-            label: 'Kişisel Bilgiler',
+            label: 'uyelik.kisisel_bilgiler'.tr(),
             onTap: () => context.push(AppRouter.personalInfo),
           ),
           _buildMenuItem(
             icon: Icons.calendar_month_outlined,
-            label: 'Rezervasyonlarım',
+            label: 'uyelik.rezervasyonlarim'.tr(),
             onTap: () => context.push(AppRouter.myReservations),
           ),
           _buildMenuItem(
             icon: Icons.card_membership_outlined,
-            label: 'Üyeliğim',
+            label: 'uyelik.uyelik'.tr(),
             onTap: () => context.push(AppRouter.membership),
           ),
           _buildMenuItem(
             icon: Icons.notifications_outlined,
-            label: 'Bildirimler',
+            label: 'bildirimler.bildirimler'.tr(),
             onTap: () => context.push(AppRouter.notificationSettings),
           ),
           _buildMenuItem(
             icon: Icons.lock_outline,
-            label: 'Şifre Değiştir',
+            label: 'uyelik.sifre_degistir'.tr(),
             onTap: () => context.push(AppRouter.changePassword),
           ),
           _buildMenuItem(
             icon: Icons.help_outline,
-            label: 'Yardım & Destek',
+            label: 'uyelik.yardim_ve_destek'.tr(),
             onTap: () => context.push(AppRouter.support),
           ),
           _buildMenuItem(
             icon: Icons.logout_rounded,
-            label: 'Çıkış Yap',
+            label: 'uyelik.cikis_yap'.tr(),
             onTap: () async {
               await ref.read(authRepositoryProvider).signOut();
 

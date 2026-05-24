@@ -4,6 +4,8 @@ import 'package:tenis_kulubu/shared/models/coach_model.dart';
 import 'package:tenis_kulubu/shared/widgets/coach_card.dart';
 import 'package:tenis_kulubu/features/coach/screens/coach_detail_screen.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+
 class CoachListScreen extends StatelessWidget {
   const CoachListScreen({super.key});
 
@@ -15,8 +17,8 @@ class CoachListScreen extends StatelessWidget {
       backgroundColor: const Color(0xFF0D1117),
       appBar: AppBar(
         backgroundColor: const Color(0xFF0D1117),
-        title: const Text(
-          'Antrenörler',
+        title: Text(
+          'coach.coach_liste'.tr(),
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -28,8 +30,8 @@ class CoachListScreen extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
-              child: Text('Antrenör bulunamadı.', style: TextStyle(color: Colors.white54)),
+            return Center(
+              child: Text('coach.coach_bulunamadi'.tr(), style: TextStyle(color: Colors.white54)),
             );
           }
 

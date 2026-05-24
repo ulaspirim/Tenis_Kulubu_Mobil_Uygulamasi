@@ -9,6 +9,8 @@ import 'package:tenis_kulubu/core/theme/app_theme.dart';
 import 'package:tenis_kulubu/firebase_options.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -57,7 +59,7 @@ class TenisApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
-      title: 'Ulaş Tenis Kulübü - Mobil Uygulama',
+      title: 'club_name'.tr(),
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
 

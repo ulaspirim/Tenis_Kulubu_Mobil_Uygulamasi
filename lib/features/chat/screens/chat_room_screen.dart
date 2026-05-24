@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:tenis_kulubu/core/theme/app_colors.dart';
 import 'package:tenis_kulubu/core/router/app_router.dart';
 
+import 'package:easy_localization/easy_localization.dart';
 
 class ChatRoomScreen extends ConsumerStatefulWidget {
   final String roomId;
@@ -21,11 +22,11 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
   final _scrollCtrl = ScrollController();
 
   String get _roomName {
-    const names = {
-      'genel': 'Genel Sohbet',
-      'tenis': 'Tenis Grubu',
-      'havuz': 'Havuz Grubu',
-      'turnuva': 'Turnuva 2025',
+    var names = {
+      'genel': 'sohbet.genel'.tr(),
+      'tenis': 'sohbet.tenis'.tr(),
+      'havuz': 'sohbet.havuz'.tr(),
+      'turnuva': 'sohbet.turnuva'.tr(),
     };
     return names[widget.roomId] ?? widget.roomId;
   }
@@ -49,7 +50,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
         .collection('users')
         .doc(user.uid)
         .get();
-    final firstName = userDoc.data()?['firstName'] ?? 'Üye';
+    final firstName = userDoc.data()?['firstName'] ?? 'sohbet.uye'.tr();
     final lastName = userDoc.data()?['lastName'] ?? '';
     final fullName = '$firstName $lastName'.trim();
 
@@ -107,7 +108,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
           // Üyeleri gösteren ikon
           IconButton(
             icon: const Icon(Icons.people_alt_rounded),
-            tooltip: 'Grup Üyeleri',
+            tooltip: 'sohbet.grup_uyeleri'.tr(),
             onPressed: _showMembersSheet,
           ),
         ],
@@ -134,7 +135,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 final docs = snapshot.data?.docs ?? [];
 
                 if (docs.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -142,7 +143,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                             size: 48, color: AppColors.textHint),
                         SizedBox(height: 12),
                         Text(
-                          'Henüz mesaj yok.\nİlk mesajı siz gönderin!',
+                          'sohbet.henuz_mesaj_yok'.tr(),
                           textAlign: TextAlign.center,
                           style: TextStyle(color: AppColors.textHint),
                         ),
@@ -177,7 +178,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                     return _buildMessageBubble(
                       text: data['content'] ?? '',
                       isMe: isMe,
-                      sender: data['senderName'] ?? 'Üye',
+                      sender: data['senderName'] ?? 'sohbet.uye'.tr(),
                       time: time,
                     );
                   },
@@ -362,8 +363,8 @@ class _MembersBottomSheet extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Grup Üyeleri',
+                        Text(
+                          'sohbet.grup_uyeleri'.tr(),
                           style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
                         ),
                         Text(
@@ -392,21 +393,26 @@ class _MembersBottomSheet extends StatelessWidget {
 
                   if (snapshot.hasError) {
                     return Center(
-                      child: Text('Hata: ${snapshot.error}',
-                          style: const TextStyle(color: AppColors.error)),
+                      child: Text(
+                        'sohbet.hata'.tr(
+                          namedArgs: {
+                            'e': snapshot.error.toString(),
+                          },
+                        ),
+                      ),
                     );
                   }
 
                   final members = snapshot.data ?? [];
 
                   if (members.isEmpty) {
-                    return const Center(
+                    return Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.people_outline, size: 48, color: AppColors.textHint),
                           SizedBox(height: 12),
-                          Text('Henüz kimse mesaj atmadı.',
+                          Text('sohbet.henuz_mesaj_yok'.tr(),
                               style: TextStyle(color: AppColors.textHint)),
                         ],
                       ),
@@ -427,7 +433,7 @@ class _MembersBottomSheet extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
-                                '${members.length} üye',
+                                '${members.length} ${'sohbet.uye'.tr()}',
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -502,8 +508,8 @@ class _MembersBottomSheet extends StatelessWidget {
                   color: AppColors.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text(
-                  'Siz',
+                child: Text(
+                  'grup.siz'.tr(),
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -514,7 +520,7 @@ class _MembersBottomSheet extends StatelessWidget {
           ],
         ),
         subtitle: Text(
-          '${member.messageCount} mesaj',
+          '${member.messageCount} ${'sohbet.mesaj'.tr()}',
           style: const TextStyle(fontSize: 12, color: AppColors.textHint),
         ),
       ),
@@ -535,7 +541,7 @@ class _MembersBottomSheet extends StatelessWidget {
     for (final doc in snapshot.docs) {
       final data = doc.data();
       final uid = data['senderId'] as String? ?? '';
-      final name = data['senderName'] as String? ?? 'Üye';
+      final name = data['senderName'] as String? ?? 'sohbet.uye'.tr();
 
       if (uid.isEmpty) continue;
 

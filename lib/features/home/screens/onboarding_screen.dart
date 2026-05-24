@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:tenis_kulubu/core/theme/app_colors.dart';
 import 'package:tenis_kulubu/core/router/app_router.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+
+
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -15,24 +18,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final _controller = PageController();
   int _currentPage = 0;
 
-  final List<_OnboardingPage> _pages = const [
+  final List<_OnboardingPage> _pages = [
     _OnboardingPage(
       emoji: '🎾',
-      title: 'Kolay Rezervasyon',
+      title: 'ana_ekran.kolay_rezervasyon'.tr(),
       subtitle:
-          'Tenis kortu, havuz ve spor salonunu tek ekrandan kolayca rezerve edin.',
+          'ana_ekran.kolay_rezervasyon_aciklama'.tr(),
     ),
     _OnboardingPage(
       emoji: '🏆',
-      title: 'Turnuvalar & Etkinlikler',
+      title: 'ana_ekran.turnuvalar_ve_etkinlikler'.tr(),
       subtitle:
-          'Kulüp turnuvalarını takip edin, kayıt olun ve sonuçları anında görün.',
+          'ana_ekran.turnuvalar_ve_etkinlikler_aciklama'.tr(),
     ),
     _OnboardingPage(
       emoji: '👥',
-      title: 'Üye Topluluğu',
+      title: 'ana_ekran.uye_toplulugu'.tr(),
       subtitle:
-          'Diğer üyelerle sohbet edin, maç arkadaşı bulun, birlikte oynayın.',
+          'ana_ekran.uye_toplulugu_aciklama'.tr(),
     ),
   ];
 
@@ -56,8 +59,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 padding: const EdgeInsets.only(top: 8, right: 16),
                 child: TextButton(
                   onPressed: () => context.go(AppRouter.login),
-                  child: const Text(
-                    'Atla',
+                  child: Text(
+                    'ana_ekran.atla'.tr(),
                     style: TextStyle(color: AppColors.textHint),
                   ),
                 ),
@@ -146,7 +149,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     }
                   },
                   child: Text(
-                    _currentPage < _pages.length - 1 ? 'Devam Et' : 'Başla',
+                    _currentPage < _pages.length - 1 ? 'ana_ekran.devam_et'.tr() : 'ana_ekran.basla'.tr(),
                   ),
                 ),
               ),

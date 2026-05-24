@@ -8,6 +8,8 @@ import 'package:tenis_kulubu/core/theme/app_colors.dart';
 import 'package:tenis_kulubu/features/admin/data/admin_repository.dart';
 import 'package:tenis_kulubu/shared/models/models.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+
 class AdminScreen extends ConsumerStatefulWidget {
   const AdminScreen({super.key});
 
@@ -52,7 +54,7 @@ Widget _buildExistingCoachesList() {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Divider(height: 24),
-          const Text(
+          Text(
             'Mevcut Antrenörler',
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
           ),
@@ -109,12 +111,12 @@ Widget _buildExistingCoachesList() {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Antrenörü Sil', style: TextStyle(fontWeight: FontWeight.w700)),
-        content: Text('"$name" adlı antrenörü silmek istediğinize emin misiniz?'),
+        title: Text('coach.sil'.tr(), style: TextStyle(fontWeight: FontWeight.w700)),
+        content: Text('coach.sil_uyari.tr({name: "$name"})'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('İptal'),
+            child: Text('coach.iptal'.tr()),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -122,12 +124,12 @@ Widget _buildExistingCoachesList() {
               if (mounted) {
                 Navigator.of(ctx).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('"$name" silindi.'), backgroundColor: AppColors.error),
+                  SnackBar(content: Text('coach.silindi.tr({name: "$name"})'), backgroundColor: AppColors.error),
                 );
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('Sil'),
+            child: Text('coach.sil'.tr()),
           ),
         ],
       ),
@@ -142,7 +144,7 @@ Widget _buildExistingCoachesList() {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('✅ "$name" eklendi.'),
+                content: Text('coach.eklendi.tr({name: "$name"})'),
                 backgroundColor: AppColors.success,
                 behavior: SnackBarBehavior.floating,
               ),
@@ -169,7 +171,7 @@ Widget _buildExistingCoachesList() {
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-          title: const Text('Admin Paneli'),
+          title: Text('admin.panel'.tr()),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_rounded),
             onPressed: () {
@@ -185,11 +187,11 @@ Widget _buildExistingCoachesList() {
             labelColor: AppColors.primary,
             unselectedLabelColor: AppColors.textHint,
             indicatorColor: AppColors.primary,
-            tabs: const [
-              Tab(text: 'Üyeler'),
-              Tab(text: 'Rezervasyonlar'),
-              Tab(text: 'İstatistik'),
-              Tab(text: 'Ayarlar'),
+            tabs: [
+              Tab(text: 'admin.uyeler'.tr()),
+              Tab(text: 'admin.rezervasyonlar'.tr()),
+              Tab(text: 'admin.istatistik'.tr()),
+              Tab(text: 'admin.ayarlar'.tr()),
             ],
           ),
         ),
@@ -197,7 +199,7 @@ Widget _buildExistingCoachesList() {
           onPressed: () => _showAddMemberDialog(context),
           backgroundColor: AppColors.primary,
           icon: const Icon(Icons.person_add_rounded, color: Colors.white),
-          label: const Text('Üye Ekle',
+          label: Text('admin.uye_ekle'.tr(),
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
         ),
         body: TabBarView(
@@ -223,7 +225,7 @@ Widget _buildExistingCoachesList() {
           child: TextField(
             onChanged: (v) => setState(() => _searchQuery = v.toLowerCase()),
             decoration: InputDecoration(
-              hintText: 'İsim veya üyelik numarası ara...',
+              hintText: 'admin.uye_ara'.tr(),
               prefixIcon: const Icon(Icons.search, color: AppColors.textHint),
               suffixIcon: _searchQuery.isNotEmpty
                   ? IconButton(
@@ -256,13 +258,13 @@ Widget _buildExistingCoachesList() {
               }
 
               if (users.isEmpty) {
-                return const Center(
+                return Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.people_outline, size: 56, color: AppColors.textHint),
                       SizedBox(height: 12),
-                      Text('Üye bulunamadı.',
+                      Text('admin.uye_bulunamadi'.tr(),
                           style: TextStyle(color: AppColors.textHint)),
                     ],
                   ),
@@ -284,7 +286,7 @@ Widget _buildExistingCoachesList() {
 
   Widget _buildMemberCard(UserModel user) {
     final statusColor = user.membershipStatus == 'active' ? AppColors.success : AppColors.error;
-    final statusLabel = user.membershipStatus == 'active' ? 'Aktif' : 'Pasif';
+    final statusLabel ='ana_ekran.${user.membershipStatus == 'active' ? 'aktif' : 'pasif'}'.tr();
 
     return Container(
       decoration: BoxDecoration(
@@ -333,7 +335,7 @@ Widget _buildExistingCoachesList() {
                   children: [
                     const Icon(Icons.warning_amber_rounded, size: 13, color: AppColors.warning),
                     const SizedBox(width: 4),
-                    Text('${user.daysUntilExpiry} gün kaldı',
+                    Text('${user.daysUntilExpiry} admin.gun_kaldi'.tr(),
                         style: const TextStyle(
                             fontSize: 11, color: AppColors.warning, fontWeight: FontWeight.w600)),
                   ],
@@ -346,12 +348,12 @@ Widget _buildExistingCoachesList() {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           onSelected: (value) => _handleMemberAction(value, user),
           itemBuilder: (_) => [
-            const PopupMenuItem(
+            PopupMenuItem(
               value: 'edit',
               child: Row(children: [
                 Icon(Icons.edit_outlined, size: 18),
                 SizedBox(width: 10),
-                Text('Düzenle'),
+                Text('admin.duzenle'.tr()),
               ]),
             ),
             PopupMenuItem(
@@ -361,23 +363,23 @@ Widget _buildExistingCoachesList() {
                     ? Icons.block_outlined
                     : Icons.check_circle_outline, size: 18),
                 const SizedBox(width: 10),
-                Text(user.membershipStatus == 'active' ? 'Pasife Al' : 'Aktife Al'),
+                Text(user.membershipStatus == 'active' ? 'admin.pasife_al'.tr() : 'admin.aktife_al'.tr()),
               ]),
             ),
-            const PopupMenuItem(
+            PopupMenuItem(
               value: 'extend',
               child: Row(children: [
                 Icon(Icons.calendar_month_outlined, size: 18),
                 SizedBox(width: 10),
-                Text('Süre Uzat'),
+                Text('admin.sure_uzat'.tr()),
               ]),
             ),
-            const PopupMenuItem(
+            PopupMenuItem(
               value: 'delete',
               child: Row(children: [
                 Icon(Icons.delete_outline, size: 18, color: AppColors.error),
                 SizedBox(width: 10),
-                Text('Sil', style: TextStyle(color: AppColors.error)),
+                Text('admin.sil.'.tr(), style: TextStyle(color: AppColors.error)),
               ]),
             ),
           ],
@@ -403,8 +405,8 @@ Widget _buildExistingCoachesList() {
         final all = [...pending, ...others];
 
         if (all.isEmpty) {
-          return const Center(
-            child: Text('Henüz randevu yok.', style: TextStyle(color: AppColors.textHint)),
+          return Center(
+            child: Text('coach.randevu_yok'.tr(), style: TextStyle(color: AppColors.textHint)),
           );
         }
 
@@ -426,10 +428,10 @@ Widget _buildExistingCoachesList() {
             }[status] ?? AppColors.textHint;
 
             final statusLabel = {
-              'pending': 'Bekliyor',
-              'confirmed': 'Onaylandı',
-              'cancelled': 'İptal',
-              'completed': 'Tamamlandı',
+              'pending': 'coach.bekliyor'.tr(),
+              'confirmed': 'coach.onaylandi'.tr(),
+              'cancelled': 'coach.reddedildi'.tr(),
+              'completed': 'coach.iptal_edildi'.tr(),
             }[status] ?? '';
 
             return Container(
@@ -487,7 +489,7 @@ Widget _buildExistingCoachesList() {
                               foregroundColor: AppColors.error,
                               side: BorderSide(color: AppColors.error.withOpacity(0.5)),
                             ),
-                            child: const Text('Reddet'),
+                            child: Text('coach.reddet'.tr()),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -503,7 +505,7 @@ Widget _buildExistingCoachesList() {
                               backgroundColor: AppColors.success,
                               foregroundColor: Colors.white,
                             ),
-                            child: const Text('Onayla'),
+                            child: Text('coach.onayla'.tr()),
                           ),
                         ),
                       ],
@@ -530,8 +532,8 @@ Widget _buildExistingCoachesList() {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(action == 'activate'
-                ? '${user.fullName} aktif edildi.'
-                : '${user.fullName} pasife alındı.'),
+                ? 'coach.aktife_alindi.tr({name: "${user.fullName}"})'
+                : 'coach.pasife_alindi.tr({name: "${user.fullName}"})'),
             backgroundColor: AppColors.success,
             behavior: SnackBarBehavior.floating,
           ));
@@ -562,24 +564,24 @@ Widget _buildExistingCoachesList() {
             children: [
               Row(
                 children: [
-                  Expanded(child: _buildStatCard('Toplam Üye', '${users.length}', Icons.people_rounded, AppColors.primary)),
+                  Expanded(child: _buildStatCard('admin.toplam_uye'.tr(), '${users.length}', Icons.people_rounded, AppColors.primary)),
                   const SizedBox(width: 12),
-                  Expanded(child: _buildStatCard('Aktif Üye', '$activeCount', Icons.check_circle_rounded, AppColors.success)),
+                  Expanded(child: _buildStatCard('admin.aktif_uye'.tr(), '$activeCount', Icons.check_circle_rounded, AppColors.success)),
                 ],
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Expanded(child: _buildStatCard('Yakında Bitiyor', '$expiringCount', Icons.warning_rounded, AppColors.warning)),
+                  Expanded(child: _buildStatCard('admin.yakinda_bitiyor'.tr(), '$expiringCount', Icons.warning_rounded, AppColors.warning)),
                   const SizedBox(width: 12),
-                  Expanded(child: _buildStatCard('Süresi Dolmuş', '$expiredCount', Icons.cancel_rounded, AppColors.error)),
+                  Expanded(child: _buildStatCard('admin.suresi_dolmus'.tr(), '$expiredCount', Icons.cancel_rounded, AppColors.error)),
                 ],
               ),
               const SizedBox(height: 24),
               if (expiringCount > 0) ...[
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
-                  child: Text('⚠️ Yakında Bitiyor',
+                  child: Text('admin.yakinda_suresi_bitenler'.tr(),
                       style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.warning)),
                 ),
                 const SizedBox(height: 12),
@@ -603,7 +605,7 @@ Widget _buildExistingCoachesList() {
                               ],
                             ),
                           ),
-                          Text('${u.daysUntilExpiry} gün',
+                          Text('${u.daysUntilExpiry} admin.gun_kaldi'.tr(),
                               style: const TextStyle(color: AppColors.warning, fontWeight: FontWeight.w700)),
                         ],
                       ),
@@ -643,14 +645,14 @@ Widget _buildExistingCoachesList() {
       padding: const EdgeInsets.all(20),
       children: [
         // ── Sohbet Grupları ──
-        _buildSectionHeader(Icons.forum_rounded, 'Sohbet Grupları'),
+        _buildSectionHeader(Icons.forum_rounded, 'admin.sohbet_gruplari'.tr()),
         const SizedBox(height: 12),
         _buildSettingsCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Tüm üyelerin görebileceği yeni bir sohbet grubu oluşturun.',
+              Text(
+                'admin.tum_uyelerin_gorebilecegi'.tr(),
                 style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.5),
               ),
               const SizedBox(height: 16),
@@ -659,7 +661,7 @@ Widget _buildExistingCoachesList() {
                 child: ElevatedButton.icon(
                   onPressed: () => _showCreateGroupDialog(context),
                   icon: const Icon(Icons.add_comment_rounded, size: 18),
-                  label: const Text('Yeni Grup Oluştur'),
+                  label: Text('admin.yeni_grup_olustur'.tr()),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
@@ -677,14 +679,14 @@ Widget _buildExistingCoachesList() {
 
         const SizedBox(height: 20),
 
-        _buildSectionHeader(Icons.person_pin, 'Antrenörler'),
+        _buildSectionHeader(Icons.person_pin, 'admin.coach'.tr()),
         const SizedBox(height: 12),
         _buildSettingsCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Kulüp antrenörlerini yönetin. Eklediğiniz antrenörler üyeler tarafından görüntülenip randevu alınabilir.',
+              Text(
+                'admin.kulup_antrenorlerini_yonetin'.tr(),
                 style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.5),
               ),
               const SizedBox(height: 16),
@@ -693,7 +695,7 @@ Widget _buildExistingCoachesList() {
                 child: ElevatedButton.icon(
                   onPressed: () => _showAddCoachDialog(context),
                   icon: const Icon(Icons.person_add_rounded, size: 18),
-                  label: const Text('Yeni Antrenör Ekle'),
+                  label: Text('admin.yeni_antrenor_ekle'.tr()),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.greenAccent.shade700,
                     foregroundColor: Colors.white,
@@ -710,14 +712,14 @@ Widget _buildExistingCoachesList() {
 
 
         // ── Duyurular ──
-        _buildSectionHeader(Icons.campaign_rounded, 'Duyurular'),
+        _buildSectionHeader(Icons.campaign_rounded, 'admin.duyurular'.tr()),
         const SizedBox(height: 12),
         _buildSettingsCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Tüm üyelere görünecek duyurular yayınlayın. Sabitlenmiş duyurular her zaman en üstte gösterilir.',
+              Text(
+                'admin.tum_uyelerin_gorebilecegi_duyurular'.tr(),
                 style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.5),
               ),
               const SizedBox(height: 16),
@@ -726,7 +728,7 @@ Widget _buildExistingCoachesList() {
                 child: ElevatedButton.icon(
                   onPressed: () => _showAddAnnouncementDialog(context),
                   icon: const Icon(Icons.add_alert_rounded, size: 18),
-                  label: const Text('Yeni Duyuru Ekle'),
+                  label: Text('admin.yeni_duyuru_ekle'.tr()),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
@@ -742,13 +744,13 @@ Widget _buildExistingCoachesList() {
         ),
 
         // ── Admin Bilgileri ──
-        _buildSectionHeader(Icons.admin_panel_settings_rounded, 'Admin Bilgileri'),
+        _buildSectionHeader(Icons.admin_panel_settings_rounded, 'admin.admin_bilgileri'.tr()),
         const SizedBox(height: 12),
         _buildSettingsCard(
-          child: const Column(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Daha fazla ayar yakında eklenecek.',
+              Text('admin.daha_fazla_ayar_yakinda_eklenecek'.tr(),
                   style: TextStyle(color: AppColors.textSecondary)),
             ],
           ),
@@ -809,8 +811,8 @@ Widget _buildExistingCoachesList() {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Divider(height: 24),
-            const Text(
-              'Mevcut Gruplar',
+            Text(
+              'admin.mevcut_gruplar'.tr(),
               style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
             ),
             const SizedBox(height: 8),
@@ -834,7 +836,7 @@ Widget _buildExistingCoachesList() {
                 title: Text(name,
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                 subtitle: Text(
-                  isCustom ? 'Admin tarafından oluşturuldu' : 'Varsayılan grup',
+                  isCustom ? 'admin.admin_tarafindan_olusturuldu'.tr() : 'admin.varsayilan_grup'.tr(),
                   style: const TextStyle(fontSize: 11, color: AppColors.textHint),
                 ),
                 trailing: isCustom
@@ -861,7 +863,7 @@ Widget _buildExistingCoachesList() {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('✅ "$name" grubu oluşturuldu.'),
+                content: Text('admin.yeni_grup_olusturuldu'.tr(namedArgs: {'name': name})),
                 backgroundColor: AppColors.success,
                 behavior: SnackBarBehavior.floating,
               ),
@@ -877,14 +879,14 @@ Widget _buildExistingCoachesList() {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Grubu Sil', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('admin.grubu_sil'.tr(), style: TextStyle(fontWeight: FontWeight.w700)),
         content: Text(
-          '"$roomName" grubunu silmek istediğinize emin misiniz? Gruptaki tüm mesajlar da silinecektir.',
+          'admin.grup_silme_onayi'.tr(namedArgs: {'name': roomName}),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('İptal'),
+            child: Text('admin.iptal'.tr()),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -899,7 +901,7 @@ Widget _buildExistingCoachesList() {
                 Navigator.of(ctx).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('"$roomName" grubu silindi.'),
+                    content: Text('admin.grup_silindi'.tr(namedArgs: {'name': roomName})),
                     backgroundColor: AppColors.error,
                     behavior: SnackBarBehavior.floating,
                   ),
@@ -907,7 +909,7 @@ Widget _buildExistingCoachesList() {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('Sil'),
+            child: Text('admin.grubu_sil'.tr()),
           ),
         ],
       ),
@@ -929,12 +931,13 @@ Widget _buildExistingCoachesList() {
             membershipType: membershipType,
             membershipNumber: membershipNum,
             phone: phone,
+
             membershipExpiry: expiryDate,
           );
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('✅ Üye eklendi. Şifre sıfırlama e-postası gönderildi.'),
+              SnackBar(
+                content: Text('admin.uye_eklendi'.tr()),
                 backgroundColor: AppColors.success,
                 behavior: SnackBarBehavior.floating,
               ),
@@ -957,31 +960,31 @@ Widget _buildExistingCoachesList() {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text('Üye Düzenle', style: TextStyle(fontWeight: FontWeight.w700)),
+          title: Text('admin.uye_duzenle'.tr(), style: TextStyle(fontWeight: FontWeight.w700)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _dialogField(firstNameCtrl, 'Ad', Icons.person_outline),
+                _dialogField(firstNameCtrl, 'admin.ad'.tr(), Icons.person_outline),
                 const SizedBox(height: 12),
-                _dialogField(lastNameCtrl, 'Soyad', Icons.person_outline),
+                _dialogField(lastNameCtrl, 'admin.soyad'.tr(), Icons.person_outline),
                 const SizedBox(height: 12),
-                _dialogField(phoneCtrl, 'Telefon', Icons.phone_outlined, type: TextInputType.phone),
+                _dialogField(phoneCtrl, 'admin.telefon'.tr(), Icons.phone_outlined, type: TextInputType.phone),
                 const SizedBox(height: 12),
-                _dialogField(membershipNumCtrl, 'Üyelik Numarası', Icons.card_membership_outlined),
+                _dialogField(membershipNumCtrl, 'admin.uyelik_numarasi'.tr(), Icons.card_membership_outlined),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   value: selectedType,
-                  decoration: const InputDecoration(
-                    labelText: 'Üyelik Tipi',
+                  decoration: InputDecoration(
+                    labelText: 'admin.uyelik_tipi'.tr(),
                     prefixIcon: Icon(Icons.star_outline),
                   ),
-                  items: const [
-                    DropdownMenuItem(value: 'standard', child: Text('Standart')),
-                    DropdownMenuItem(value: 'premium', child: Text('Premium')),
-                    DropdownMenuItem(value: 'family', child: Text('Aile')),
-                    DropdownMenuItem(value: 'club_player', child: Text('Kulüp Oyuncusu')),
-                    DropdownMenuItem(value: 'special', child: Text('Özel Üye')),
+                  items: [
+                    DropdownMenuItem(value: 'standard', child: Text('admin.uyelik_tipi_standard'.tr())),
+                    DropdownMenuItem(value: 'premium', child: Text('admin.uyelik_tipi_premium'.tr())),
+                    DropdownMenuItem(value: 'family', child: Text('admin.uyelik_tipi_family'.tr())),
+                    DropdownMenuItem(value: 'club_player', child: Text('admin.uyelik_tipi_club_player'.tr())),
+                    DropdownMenuItem(value: 'special', child: Text('admin.uyelik_tipi_special'.tr())),
                   ],
                   onChanged: (v) => setDialogState(() => selectedType = v!),
                 ),
@@ -991,7 +994,7 @@ Widget _buildExistingCoachesList() {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('İptal'),
+              child: Text('grup.iptal'.tr()),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -1006,15 +1009,15 @@ Widget _buildExistingCoachesList() {
                 if (mounted) {
                   Navigator.of(ctx).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('✅ Üye bilgileri güncellendi.'),
+                    SnackBar(
+                      content: Text('admin.uye_guncellendi'.tr()),
                       backgroundColor: AppColors.success,
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
                 }
               },
-              child: const Text('Kaydet'),
+              child: Text('admin.kaydet'.tr()),
             ),
           ],
         ),
@@ -1032,7 +1035,7 @@ Widget _buildExistingCoachesList() {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text('Üyelik Süresini Uzat', style: TextStyle(fontWeight: FontWeight.w700)),
+          title: Text('admin.uye_suresini_uzat'.tr(), style: TextStyle(fontWeight: FontWeight.w700)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -1041,7 +1044,7 @@ Widget _buildExistingCoachesList() {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.calendar_today_outlined, color: AppColors.primary),
-                title: const Text('Yeni Bitiş Tarihi'),
+                title: Text('admin.yeni_bitis_tarihi'.tr()),
                 subtitle: Text(
                   DateFormat('d MMMM y', 'tr_TR').format(newExpiry),
                   style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.primary),
@@ -1079,7 +1082,7 @@ Widget _buildExistingCoachesList() {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('İptal'),
+              child: Text('admin.iptal'.tr()),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -1090,15 +1093,15 @@ Widget _buildExistingCoachesList() {
                 if (mounted) {
                   Navigator.of(ctx).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('✅ Üyelik süresi uzatıldı.'),
+                    SnackBar(
+                      content: Text('admin.uye_suresini_uzatildi'.tr()),
                       backgroundColor: AppColors.success,
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
                 }
               },
-              child: const Text('Uzat'),
+              child: Text('admin.uzat'.tr()),
             ),
           ],
         ),
@@ -1111,13 +1114,13 @@ Widget _buildExistingCoachesList() {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Üyeyi Sil', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('admin.uye_sil'.tr(), style: TextStyle(fontWeight: FontWeight.w700)),
         content: Text(
-            '${user.fullName} adlı üyeyi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.'),
+          'admin.uye_silme_onayi'.tr(args: [user.fullName]),),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('İptal'),
+            child: Text('admin.iptal'.tr()),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -1126,7 +1129,7 @@ Widget _buildExistingCoachesList() {
                 Navigator.of(ctx).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('${user.fullName} silindi.'),
+                    content: Text('admin.uye_silindi'.tr(args: [user.fullName])),
                     backgroundColor: AppColors.error,
                     behavior: SnackBarBehavior.floating,
                   ),
@@ -1134,7 +1137,7 @@ Widget _buildExistingCoachesList() {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('Sil'),
+            child: Text('admin.uyeyi_sil'.tr()),
           ),
         ],
       ),
@@ -1180,8 +1183,8 @@ Widget _buildExistingCoachesList() {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Divider(height: 24),
-            const Text(
-              'Mevcut Duyurular',
+            Text(
+              'duyurular.mevcut_duyurular'.tr(),
               style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
             ),
             const SizedBox(height: 8),
@@ -1199,14 +1202,14 @@ Widget _buildExistingCoachesList() {
                 'general': AppColors.primary,
               };
               final categoryLabels = <String, String>{
-                'tournament': 'Turnuva',
-                'maintenance': 'Bakım',
-                'event': 'Etkinlik',
-                'general': 'Duyuru',
+                'tournament': 'duyurular.turnuva'.tr(),
+                'maintenance': 'duyurular.bakim'.tr(),
+                'event': 'duyurular.etkinlik'.tr(),
+                'general': 'duyurular.genel'.tr(),
               };
 
               final color = categoryColors[category] ?? AppColors.primary;
-              final label = categoryLabels[category] ?? 'Duyuru';
+              final label = categoryLabels[category] ?? 'duyurular.duyuru'.tr();
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 8),
@@ -1251,7 +1254,7 @@ Widget _buildExistingCoachesList() {
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
-                                  isPublished ? 'Yayında' : 'Taslak',
+                                  isPublished ? 'duyurular.yayinda'.tr() : 'duyurular.taslak'.tr(),
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w700,
@@ -1274,7 +1277,7 @@ Widget _buildExistingCoachesList() {
                           child: Row(children: [
                             Icon(isPublished ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 18),
                             const SizedBox(width: 10),
-                            Text(isPublished ? 'Gizle' : 'Yayınla'),
+                            Text(isPublished ? 'duyurular.gizle'.tr() : 'duyurular.yayinla'.tr()),
                           ]),
                         ),
                         PopupMenuItem(
@@ -1282,15 +1285,15 @@ Widget _buildExistingCoachesList() {
                           child: Row(children: [
                             Icon(isPinned ? Icons.push_pin_outlined : Icons.push_pin_rounded, size: 18),
                             const SizedBox(width: 10),
-                            Text(isPinned ? 'Sabitlemeyi Kaldır' : 'Sabitle'),
+                            Text(isPinned ? 'duyurular.sabitlemeyi_kaldir'.tr() : 'duyurular.sabitle'.tr()),
                           ]),
                         ),
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'delete',
                           child: Row(children: [
                             Icon(Icons.delete_outline, size: 18, color: AppColors.error),
                             SizedBox(width: 10),
-                            Text('Sil', style: TextStyle(color: AppColors.error)),
+                            Text('duyurular.sil'.tr(), style: TextStyle(color: AppColors.error)),
                           ]),
                         ),
                       ],
@@ -1331,12 +1334,12 @@ Widget _buildExistingCoachesList() {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Duyuruyu Sil', style: TextStyle(fontWeight: FontWeight.w700)),
-        content: Text('"$title" duyurusunu silmek istediğinize emin misiniz?'),
+        title: Text('duyurular.duyuruyu_sil'.tr(), style: TextStyle(fontWeight: FontWeight.w700)),
+        content: Text('duyurular.duyuru_silme_onayi.tr(args: [title])'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('İptal'),
+            child: Text('duyurular.iptal'.tr()),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -1348,7 +1351,7 @@ Widget _buildExistingCoachesList() {
                 Navigator.of(ctx).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Duyuru silindi.'),
+                    content: Text('duyurular.duyuru_silindi.tr(args: [title])'),
                     backgroundColor: AppColors.error,
                     behavior: SnackBarBehavior.floating,
                   ),
@@ -1356,7 +1359,7 @@ Widget _buildExistingCoachesList() {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('Sil'),
+            child: Text('duyurular.sil'.tr()),
           ),
         ],
       ),
@@ -1416,7 +1419,7 @@ class _AddMemberDialogState extends State<_AddMemberDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text('Yeni Üye Ekle', style: TextStyle(fontWeight: FontWeight.w700)),
+      title: Text('uyelik.yeni_uyelik'.tr(), style: TextStyle(fontWeight: FontWeight.w700)),
       content: SizedBox(
         width: double.maxFinite,
         child: SingleChildScrollView(
@@ -1424,28 +1427,28 @@ class _AddMemberDialogState extends State<_AddMemberDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _field(_firstNameCtrl, 'Ad', Icons.person_outline),
+              _field(_firstNameCtrl, 'uyelik.ad'.tr(), Icons.person_outline),
               const SizedBox(height: 12),
-              _field(_lastNameCtrl, 'Soyad', Icons.person_outline),
+              _field(_lastNameCtrl, 'uyelik.soyad'.tr(), Icons.person_outline),
               const SizedBox(height: 12),
-              _field(_emailCtrl, 'E-posta Adresi', Icons.email_outlined, type: TextInputType.emailAddress),
+              _field(_emailCtrl, 'uyelik.e-posta'.tr(), Icons.email_outlined, type: TextInputType.emailAddress),
               const SizedBox(height: 12),
-              _field(_phoneCtrl, 'Telefon Numarası', Icons.phone_outlined, type: TextInputType.phone),
+              _field(_phoneCtrl, 'uyelik.telefon'.tr(), Icons.phone_outlined, type: TextInputType.phone),
               const SizedBox(height: 12),
-              _field(_membershipNumCtrl, 'Üyelik Numarası', Icons.card_membership_outlined),
+              _field(_membershipNumCtrl, 'admin.uyelik_numarasi'.tr(), Icons.card_membership_outlined),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 value: _selectedType,
-                decoration: const InputDecoration(
-                  labelText: 'Üyelik Tipi',
+                decoration: InputDecoration(
+                  labelText: 'uyelik.uyelik_tipi'.tr(),
                   prefixIcon: Icon(Icons.star_outline),
                 ),
-                items: const [
-                  DropdownMenuItem(value: 'standard', child: Text('Standart Üye')),
-                  DropdownMenuItem(value: 'premium', child: Text('Premium Üye')),
-                  DropdownMenuItem(value: 'family', child: Text('Aile Üyesi')),
-                  DropdownMenuItem(value: 'club_player', child: Text('Kulüp Oyuncusu')),
-                  DropdownMenuItem(value: 'special', child: Text('Özel Üye')),
+                items: [
+                  DropdownMenuItem(value: 'standard', child: Text('uyelik.standart'.tr())),
+                  DropdownMenuItem(value: 'premium', child: Text('uyelik.premium'.tr())),
+                  DropdownMenuItem(value: 'family', child: Text('uyelik.family'.tr())),
+                  DropdownMenuItem(value: 'club_player', child: Text('uyelik.club_player'.tr())),
+                  DropdownMenuItem(value: 'special', child: Text('uyelik.special'.tr())),
                 ],
                 onChanged: (v) => setState(() => _selectedType = v!),
               ),
@@ -1453,7 +1456,7 @@ class _AddMemberDialogState extends State<_AddMemberDialog> {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.calendar_today_outlined, color: AppColors.primary),
-                title: const Text('Üyelik Bitiş Tarihi', style: TextStyle(fontSize: 13)),
+                title: Text('uyelik.bitis_tarihi'.tr(), style: TextStyle(fontSize: 13)),
                 subtitle: Text(
                   '${_expiryDate.day}.${_expiryDate.month}.${_expiryDate.year}',
                   style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.primary),
@@ -1475,7 +1478,7 @@ class _AddMemberDialogState extends State<_AddMemberDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('İptal'),
+          child: Text('uyelik.iptal'.tr()),
         ),
         ElevatedButton(
           onPressed: _isLoading
@@ -1486,7 +1489,7 @@ class _AddMemberDialogState extends State<_AddMemberDialog> {
                       _emailCtrl.text.isEmpty ||
                       _membershipNumCtrl.text.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Lütfen zorunlu alanları doldurun.')),
+                      SnackBar(content: Text('uyelik.zorunlu_alanlar'.tr())),
                     );
                     return;
                   }
@@ -1506,7 +1509,7 @@ class _AddMemberDialogState extends State<_AddMemberDialog> {
                     setState(() => _isLoading = false);
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Hata: $e'), backgroundColor: AppColors.error),
+                        SnackBar(content: Text('uyelik.hata.tr() $e'), backgroundColor: AppColors.error),
                       );
                     }
                   }
@@ -1516,7 +1519,7 @@ class _AddMemberDialogState extends State<_AddMemberDialog> {
                   width: 18,
                   height: 18,
                   child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-              : const Text('Ekle'),
+              : Text('uyelik.kaydet'.tr()),
         ),
       ],
     );
@@ -1609,8 +1612,8 @@ class _CreateGroupDialogState extends State<_CreateGroupDialog> {
     final name = _nameCtrl.text.trim();
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Grup adı zorunludur.'),
+        SnackBar(
+          content: Text('uyelik.grup_adi_zorunludur'.tr()),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -1618,8 +1621,8 @@ class _CreateGroupDialogState extends State<_CreateGroupDialog> {
     }
     if (_isPrivate && _selectedUids.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Özel grup için en az bir üye seçmelisiniz.'),
+        SnackBar(
+          content: Text('uyelik.ozel_grup_uye_sec'.tr()),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -1654,7 +1657,7 @@ class _CreateGroupDialogState extends State<_CreateGroupDialog> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Hata: $e'),
+            content: Text('grup.hata.tr() $e'),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),
@@ -1673,11 +1676,11 @@ class _CreateGroupDialogState extends State<_CreateGroupDialog> {
 
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Row(
+      title: Row(
         children: [
           Icon(Icons.add_comment_rounded, color: AppColors.primary, size: 22),
           SizedBox(width: 10),
-          Text('Yeni Grup Oluştur',
+          Text('grup.yeni_grup'.tr(),
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17)),
         ],
       ),
@@ -1689,7 +1692,7 @@ class _CreateGroupDialogState extends State<_CreateGroupDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ── Grup Adı ──
-              _inputField(_nameCtrl, 'Grup Adı *', 'örn. Hafta Sonu Grubu',
+              _inputField(_nameCtrl, 'grup.grup_adi'.tr(), 'grup.grup_ornek'.tr(),
                   Icons.group_rounded),
               const SizedBox(height: 12),
 
@@ -1698,15 +1701,15 @@ class _CreateGroupDialogState extends State<_CreateGroupDialog> {
                 controller: _descCtrl,
                 maxLines: 2,
                 decoration: _inputDecoration(
-                  'Açıklama (isteğe bağlı)',
-                  'Bu grup hakkında kısa bir açıklama...',
+                  '${'grup.aciklama'.tr()} (isteğe bağlı)',
+                  '${'grup.aciklama_aciklamasi'.tr()}...',
                   Icons.description_outlined,
                 ),
               ),
               const SizedBox(height: 16),
 
               // ── İkon Seçimi ──
-              const Text('Grup İkonu',
+              Text('grup.grup_ikonu'.tr(),
                   style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -1755,15 +1758,15 @@ class _CreateGroupDialogState extends State<_CreateGroupDialog> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        _isPrivate ? 'Özel Grup' : 'Herkese Açık',
+                        _isPrivate ? 'grup.ozel_grup'.tr() : 'grup.herkese_acik'.tr(),
                         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
                   subtitle: Text(
                     _isPrivate
-                        ? 'Sadece seçili üyeler görebilir'
-                        : 'Tüm üyeler bu grubu görebilir',
+                        ? 'grup.sadece_secili_uyeler_gorebilir'.tr()
+                        : 'grup.tum_uyeler_bu_grubu_gorebilir'.tr(),
                     style: const TextStyle(fontSize: 11, color: AppColors.textHint),
                   ),
                   onChanged: (val) {
@@ -1784,7 +1787,7 @@ class _CreateGroupDialogState extends State<_CreateGroupDialog> {
                     const Icon(Icons.person_search_rounded,
                         size: 16, color: AppColors.primary),
                     const SizedBox(width: 6),
-                    const Text('Üye Seç',
+                    Text('grup.uye_sec'.tr(),
                         style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -1798,7 +1801,7 @@ class _CreateGroupDialogState extends State<_CreateGroupDialog> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
-                          '${_selectedUids.length} seçildi',
+                          '${_selectedUids.length} ${'grup.secildi'.tr()}',
                           style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
@@ -1813,7 +1816,7 @@ class _CreateGroupDialogState extends State<_CreateGroupDialog> {
                 TextField(
                   onChanged: (v) => setState(() => _memberSearch = v),
                   decoration: _inputDecoration(
-                    'Üye ara...',
+                    'grup.uye_ara'.tr(),
                     '',
                     Icons.search_rounded,
                   ),
@@ -1827,10 +1830,10 @@ class _CreateGroupDialogState extends State<_CreateGroupDialog> {
                     child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
                   )
                 else if (filteredUsers.isEmpty)
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(vertical: 12),
                     child: Center(
-                      child: Text('Üye bulunamadı.',
+                      child: Text('grup.uye_bulunamadi'.tr(),
                           style: TextStyle(color: AppColors.textHint, fontSize: 13)),
                     ),
                   )
@@ -1928,7 +1931,7 @@ class _CreateGroupDialogState extends State<_CreateGroupDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('İptal'),
+          child: Text('grup.iptal'.tr()),
         ),
         ElevatedButton.icon(
           onPressed: _isLoading ? null : _submit,
@@ -1939,7 +1942,7 @@ class _CreateGroupDialogState extends State<_CreateGroupDialog> {
                   child: CircularProgressIndicator(
                       color: Colors.white, strokeWidth: 2))
               : const Icon(Icons.check_rounded, size: 18),
-          label: const Text('Oluştur'),
+          label: Text('grup.olustur'.tr()),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
@@ -2009,7 +2012,7 @@ class _AddAnnouncementDialogState extends State<_AddAnnouncementDialog> {
 
     if (title.isEmpty || content.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen tüm zorunlu alanları doldurun.')),
+        SnackBar(content: Text('duyurular.zorunlu_alanlar'.tr())),
       );
       return;
     }
@@ -2028,8 +2031,8 @@ class _AddAnnouncementDialogState extends State<_AddAnnouncementDialog> {
       if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Duyuru başarıyla yayınlandı.'),
+          SnackBar(
+            content: Text('duyurular.duyuru_eklendi'.tr()),
             backgroundColor: AppColors.success,
             behavior: SnackBarBehavior.floating,
           ),
@@ -2039,7 +2042,7 @@ class _AddAnnouncementDialogState extends State<_AddAnnouncementDialog> {
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Hata: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text('duyurular.hata'.tr()), backgroundColor: AppColors.error),
         );
       }
     }
@@ -2049,11 +2052,11 @@ class _AddAnnouncementDialogState extends State<_AddAnnouncementDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Row(
+      title: Row(
         children: [
           Icon(Icons.add_alert_rounded, color: AppColors.primary, size: 22),
           SizedBox(width: 10),
-          Text('Yeni Duyuru Ekle', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17)),
+          Text('duyurular.duyuru_ekle'.tr(), style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17)),
         ],
       ),
       content: SizedBox(
@@ -2064,38 +2067,45 @@ class _AddAnnouncementDialogState extends State<_AddAnnouncementDialog> {
             children: [
               TextField(
                 controller: _titleCtrl,
-                decoration: _inputDecoration('Duyuru Başlığı *', Icons.title_rounded),
+                decoration: _inputDecoration('duyurular.duyuru_basligi'.tr(), Icons.title_rounded),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _contentCtrl,
                 maxLines: 4,
-                decoration: _inputDecoration('Duyuru İçeriği *', Icons.description_outlined),
+                decoration: _inputDecoration('duyurular.duyuru_icerigi'.tr(), Icons.description_outlined),
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 value: _selectedCategory,
-                decoration: const InputDecoration(
-                  labelText: 'Kategori',
+                decoration: InputDecoration(
+                  labelText: 'duyurular.kategori'.tr(),
                   prefixIcon: Icon(Icons.category_outlined),
                 ),
-                items: const [
-                  DropdownMenuItem(value: 'general', child: Text('Genel Duyuru')),
-                  DropdownMenuItem(value: 'tournament', child: Text('Turnuva')),
-                  DropdownMenuItem(value: 'maintenance', child: Text('Bakım / Onarım')),
-                  DropdownMenuItem(value: 'event', child: Text('Etkinlik')),
+                items: [
+                  DropdownMenuItem(value: 'general', child: Text('duyurular.genel'.tr())),
+                  DropdownMenuItem(value: 'tournament', child: Text('duyurular.turnuva'.tr())),
+                  DropdownMenuItem(value: 'maintenance', child: Text('duyurular.bakim'.tr())),
+                  DropdownMenuItem(value: 'event', child: Text('duyurular.etkinlik'.tr())),
                 ],
                 onChanged: (v) => setState(() => _selectedCategory = v!),
               ),
               const SizedBox(height: 12),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('En Üste Sabitle', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                subtitle: const Text('Bu duyuru her zaman en başta görünür.', style: TextStyle(fontSize: 11)),
+                title: Text(
+                  _isPinned
+                      ? 'duyurular.sabitle'.tr()
+                      : 'duyurular.sabitlemeyi_kaldir'.tr(),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 value: _isPinned,
                 activeColor: AppColors.primary,
                 onChanged: (v) => setState(() => _isPinned = v),
-              ),
+              )
             ],
           ),
         ),
@@ -2103,13 +2113,13 @@ class _AddAnnouncementDialogState extends State<_AddAnnouncementDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('İptal'),
+          child: Text('duyurular.iptal'.tr()),
         ),
         ElevatedButton(
           onPressed: _isLoading ? null : _submit,
           child: _isLoading
               ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-              : const Text('Yayınla'),
+              : Text('duyurular.yayinla'.tr(), style: TextStyle(color: Colors.white)),
         ),
       ],
     );
@@ -2148,13 +2158,18 @@ class _AddCoachDialogState extends State<_AddCoachDialog> {
   };
 
   final _dayLabels = {
-    'monday': 'Pzt', 'tuesday': 'Sal', 'wednesday': 'Çar',
-    'thursday': 'Per', 'friday': 'Cum', 'saturday': 'Cmt', 'sunday': 'Paz',
+    'monday': 'coach.pazartesi'.tr(),
+    'tuesday': 'coach.sali'.tr(),
+    'wednesday': 'coach.carsamba'.tr(),
+    'thursday': 'coach.persembe'.tr(),
+    'friday': 'coach.cuma'.tr(),
+    'saturday': 'coach.cumartesi'.tr(),
+    'sunday': 'coach.pazar'.tr(),
   };
 
   final _allSlots = ['08:00','09:00','10:00','11:00','12:00',
                      '13:00','14:00','15:00','16:00','17:00',
-                     '18:00','19:00','20:00'];
+                     '18:00','19:00','20:00','21:00'];
 
   @override
   void dispose() {
@@ -2168,7 +2183,7 @@ class _AddCoachDialogState extends State<_AddCoachDialog> {
   Future<void> _submit() async {
     if (_nameCtrl.text.trim().isEmpty || _priceCtrl.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ad ve ücret zorunludur.')),
+        SnackBar(content: Text('coach.ad_uye_zorunlu'.tr())),
       );
       return;
     }
@@ -2193,7 +2208,7 @@ class _AddCoachDialogState extends State<_AddCoachDialog> {
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Hata: $e'), backgroundColor: AppColors.error),
+          SnackBar(content: Text('coach.hata.tr(e)'), backgroundColor: AppColors.error),
         );
       }
     }
@@ -2207,7 +2222,7 @@ class _AddCoachDialogState extends State<_AddCoachDialog> {
         children: [
           Icon(Icons.person_add_rounded, color: Colors.greenAccent, size: 22),
           SizedBox(width: 10),
-          Text('Yeni Antrenör Ekle', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17)),
+          Text('coach.yeni_antrenör', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17)),
         ],
       ),
       content: SizedBox(
@@ -2217,16 +2232,16 @@ class _AddCoachDialogState extends State<_AddCoachDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _field(_nameCtrl, 'Ad Soyad *', Icons.person_outline),
+              _field(_nameCtrl, 'coach.ad_soyad'.tr(), Icons.person_outline),
               const SizedBox(height: 12),
-              _field(_specialtyCtrl, 'Uzmanlık (örn. İleri Seviye)', Icons.star_outline),
+              _field(_specialtyCtrl, 'coach.uzmanlik'.tr(), Icons.star_outline),
               const SizedBox(height: 12),
-              _field(_priceCtrl, 'Ücret (₺/saat) *', Icons.attach_money, type: TextInputType.number),
+              _field(_priceCtrl, 'coach.ucret'.tr(), Icons.attach_money, type: TextInputType.number),
               const SizedBox(height: 12),
-              _field(_photoCtrl, 'Fotoğraf URL (opsiyonel)', Icons.photo_outlined),
+              _field(_photoCtrl, 'coach.fotograf_url'.tr(), Icons.photo_outlined),
               const SizedBox(height: 20),
 
-              const Text('Müsait Saatler',
+              Text('coach.musait_saatler'.tr(),
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
               const SizedBox(height: 10),
 
@@ -2276,14 +2291,14 @@ class _AddCoachDialogState extends State<_AddCoachDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('İptal'),
+          child: Text('coach.iptal'.tr()),
         ),
         ElevatedButton(
           onPressed: _isLoading ? null : _submit,
           style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent.shade700),
           child: _isLoading
               ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-              : const Text('Ekle', style: TextStyle(color: Colors.white)),
+              : Text('coach.ekle'.tr(), style: TextStyle(color: Colors.white)),
         ),
       ],
     );

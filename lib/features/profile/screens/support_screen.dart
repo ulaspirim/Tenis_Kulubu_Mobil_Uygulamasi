@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tenis_kulubu/core/theme/app_colors.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+
 class SupportScreen extends StatelessWidget {
   const SupportScreen({super.key});
 
@@ -10,7 +12,7 @@ class SupportScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Yardım & Destek'),
+        title: Text(('uyelik.yardim_ve_destek'.tr())),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_rounded),
           // ✅ Navigator.of(context).pop() → context.pop() (GoRouter ile tutarlı)
@@ -23,7 +25,7 @@ class SupportScreen extends StatelessWidget {
           _buildSupportTile(
             context: context,
             icon: Icons.mail_outline_rounded,
-            title: 'Bize E-posta Gönderin',
+            title: 'uyelik.bize_eposta_gonderin'.tr(),
             subtitle: 'support@teniskulubu.com',
             onTap: () {
               // TODO: url_launcher ile mailto: aç
@@ -33,15 +35,15 @@ class SupportScreen extends StatelessWidget {
           _buildSupportTile(
             context: context,
             icon: Icons.phone_in_talk_outlined,
-            title: 'Telefon ile Ulaşın',
+            title: 'uyelik.bize_ulasin'.tr(),
             subtitle: '+90 (212) XXX XX XX',
             onTap: () {
               // TODO: url_launcher ile tel: aç
             },
           ),
           const SizedBox(height: 24),
-          const Text(
-            'Sıkça Sorulan Sorular',
+          Text(
+            'uyelik.sikca_sorulan_sorular'.tr(),
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -59,21 +61,21 @@ class SupportScreen extends StatelessWidget {
             child: Column(
               children: [
                 _buildFaqTile(
-                  'Rezervasyonumu nasıl iptal edebilirim?',
-                  'Rezervasyonlarım sekmesinden aktif rezervasyonunuzu bulup son 24 saate kadar ücretsiz iptal edebilirsiniz.',
+                  'uyelik.rezervasyonumu_nasil_iptal_ederim'.tr(),
+                  'uyelik.rezervasyonlarim_sekmesinden_iptal_edebilirsiniz'.tr(),
                 ),
                 const Divider(height: 1, color: AppColors.surfaceVariant),
                 _buildFaqTile(
-                  'Üyelik paketimi nasıl yükseltebilirim?',
-                  'Kulüp resepsiyonundan veya Üyeliğim ekranındaki adımları takip ederek Premium pakete geçiş yapabilirsiniz.',
+                  'uyelik_paketimi_nasil_yukseltebilirim'.tr(),
+                  'uyelik.paket_yukseltme'.tr(),
                 ),
                 _buildFaqTile(
-                  'Üyelik paketimi nasıl yenilerim?',
-                  'Kulüp resepsiyonundan veya Üyeliğim ekranındaki adımları takip ederek mevcut paketinizin süresini uzatabilirsiniz.',
+                  'uyelik.uyelik_paketimi_nasil_yenilerim'.tr(),
+                  'uyelik.paket_yenile'.tr(),
                 ),
                 _buildFaqTile(
-                  'Özel sohbet grubunu nasıl oluştururum?',
-                  'Kulüp resepsiyonundan talep ederek özel sohbet grubu oluşturabilirsiniz.',
+                  'uyelik.ozel_sohbet_grubunu_nasil_olustururum'.tr(),
+                  'uyelik.ozel_sohbet_odasi'.tr(),
                 ),
               ],
             ),

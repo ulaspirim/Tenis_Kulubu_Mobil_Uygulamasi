@@ -95,18 +95,17 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/personal-info',
         builder: (context, state) => const PersonalInfoScreen(),
       ),
+
       GoRoute(
-        path: AppRouter.notifications,
-        builder: (context, state) => const NotificationsScreen(),
-      ),
+            path: AppRouter.notifications,
+            builder: (context, state) => const NotificationsScreen(),
+          ),
+          
       GoRoute(
         path: AppRouter.support,
         builder: (context, state) => const SupportScreen(),
       ),
-      GoRoute(
-        path: AppRouter.notificationSettings,
-        builder: (context, state) => const NotificationSettingsScreen(),
-      ),
+      
 
       // Ana Shell (Bottom Navigation Bar)
       ShellRoute(
@@ -128,6 +127,9 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
+   
+          
+         
           GoRoute(
             path: AppRouter.myReservations,
             builder: (context, state) => const MyReservationsScreen(),
@@ -168,6 +170,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: AppRouter.settings,
             builder: (context, state) => const SettingsScreen(),
           ),
+          GoRoute(
+            path: AppRouter.notificationSettings,
+            builder: (context, state) => const NotificationSettingsScreen(),
+          ),
         ],
       ),
       GoRoute(
@@ -187,7 +193,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => context.go(AppRouter.home),
-              child: const Text('Ana Sayfaya Dön'),
+              child: Text('Ana Sayfaya Dön'),
             ),
           ],
         ),

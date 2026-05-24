@@ -8,6 +8,8 @@ import 'package:tenis_kulubu/core/theme/app_colors.dart';
 import 'package:tenis_kulubu/features/auth/data/auth_repository.dart';
 import 'package:tenis_kulubu/features/coach/screens/coach_list_screen.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+
 // ─────────────────────────────────────────
 // PROVIDERS
 // ─────────────────────────────────────────
@@ -76,12 +78,12 @@ class FacilityData {
 
   String get typeLabel {
     switch (type) {
-      case 'tennis_court': return '🎾 Tenis Kortu';
-      case 'pool': return '🏊 Havuz';
-      case 'gym': return '💪 Spor Salonu';
-      case 'coach': return '👨‍🏫 Antrenör Dersi';
-      case 'multi_court': return '🏐 Çok Amaçlı Alan';
-      default: return '🏐 Çok Amaçlı';
+      case 'tennis_court': return 'uygulama.tenis_kortu'.tr();
+      case 'pool': return 'uygulama.yuzme_havuzu'.tr();
+      case 'gym': return 'uygulama.spor_salonu'.tr();
+      case 'coach': return 'uygulama.antrenor_dersi'.tr();
+      case 'multi_court': return 'uygulama.cok_amacli_alan'.tr();
+      default: return 'uygulama.cok_amacli'.tr();
     }
   }
 }
@@ -147,11 +149,11 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
       return true;
     } catch (e) {
       setState(() => _isLoading = false);
-      debugPrint('🔥 FIRESTORE HATASI: $e');
+      debugPrint("${'rezervasyon.firestore_hatasi'.tr()}: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Saatler yüklenemedi. İndeks eksik olabilir.'),
+          SnackBar(
+            content: Text('rezervasyon.saatler_yuklenemedi'.tr()),
             backgroundColor: AppColors.error,
           ),
         );
@@ -166,7 +168,7 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
     try {
       final userAsync = ref.read(currentUserProvider);
       final user = userAsync.value;
-      if (user == null) throw Exception('Kullanıcı bulunamadı');
+      if (user == null) throw Exception('uyelik.kullanici_bulunamadi'.tr());
 
       final slot = _selectedTimeSlot!.split(' – ');
 
@@ -192,7 +194,7 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Hata: $e'),
+            content: Text("${'bildirimler.hata'.tr()}: $e"),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),
@@ -221,7 +223,7 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
                   color: AppColors.success, size: 56),
             ),
             const SizedBox(height: 20),
-            const Text('Rezervasyon Oluşturuldu!',
+            Text('rezervasyon.rezervasyon_olusturuldu'.tr(),
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                 textAlign: TextAlign.center),
             const SizedBox(height: 8),
@@ -236,17 +238,19 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                  setState(() {
-                    _currentStep = 0;
-                    _selectedFacility = null;
-                    _selectedTimeSlot = null;
-                    _slotReservationCounts = {};
-                  });
-                },
-                child: const Text('Tamam'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                setState(() {
+                  _currentStep = 0;
+                  _selectedFacility = null;
+                  _selectedTimeSlot = null;
+                  _slotReservationCounts = {};
+                });
+              },
+              child: Text(
+                'tamam'.tr(),
               ),
+            ),
             ),
           ],
         ),
@@ -259,7 +263,7 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Rezervasyon'),
+        title: Text('rezervasyon.rezervasyon'.tr()),
         actions: [
           if (_currentStep > 0)
             TextButton(
@@ -269,7 +273,7 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
                 _selectedTimeSlot = null;
                 _slotReservationCounts = {};
               }),
-              child: const Text('Sıfırla'),
+              child: Text('rezervasyon.sifirla'.tr()),
             ),
         ],
       ),
@@ -294,7 +298,12 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
   }
 
   Widget _buildStepIndicator() {
-    final steps = ['Tesis', 'Tarih', 'Saat', 'Onay'];
+    final steps = [
+      'rezervasyon.tesis'.tr(),
+      'rezervasyon.tarih'.tr(),
+      'rezervasyon.saat'.tr(),
+      'rezervasyon.onay'.tr(),
+    ];
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       color: AppColors.surface,
@@ -363,8 +372,8 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
       error: (e, _) => Center(child: Text('Hata: $e')),
       data: (facilities) {
         if (facilities.isEmpty) {
-          return const Center(
-            child: Text('Henüz tesis eklenmemiş.',
+          return Center(
+            child: Text('rezervasyon.tesis_eklenmemis'.tr(),
                 style: TextStyle(color: AppColors.textHint)),
           );
         }
@@ -452,10 +461,10 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
                           color: AppColors.textPrimary)),
                   Text(
                     f.type == 'coach'
-                        ? 'Antrenör ile özel ders'
+                        ? 'rezervasyon.coach_dersi'.tr()
                         : f.type == 'multi_court'
-                            ? 'Pickleball · Basketbol · Voleybol'
-                            : 'Kapasite: ${f.capacity} kişi',
+                            ? 'rezervasyon.multi_court'.tr()
+                            : "${'rezervasyon.kapasite'.tr()} ${f.capacity} ${'rezervasyon.kisi'.tr()}",
                     style: const TextStyle(
                         fontSize: 12, color: AppColors.textSecondary),
                   ),
@@ -537,13 +546,13 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
               color: AppColors.primary.withOpacity(0.06),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Row(
+            child: Row(
               children: [
                 Icon(Icons.info_outline, color: AppColors.primary, size: 18),
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    '14 güne kadar rezervasyon yapabilirsiniz.',
+                    'rezervasyon.14_gune_kadar'.tr(),
                     style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                   ),
                 ),
@@ -578,14 +587,14 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
 
           Row(
             children: [
-              _buildLegend(AppColors.primary.withOpacity(0.08), AppColors.primary, 'Müsait'),
+              _buildLegend(AppColors.primary.withOpacity(0.08), AppColors.primary, 'rezervasyon.musait'.tr()),
               const SizedBox(width: 16),
               _buildLegend(
                   const Color.fromARGB(255, 151, 23, 23).withOpacity(0.12),
                   const Color.fromARGB(255, 151, 23, 23),
-                  'Dolu'),
+                  'rezervasyon.dolu'.tr()),
               const SizedBox(width: 16),
-              _buildLegend(AppColors.primary, Colors.white, 'Seçili'),
+              _buildLegend(AppColors.primary, Colors.white, 'rezervasyon.secili'.tr()),
             ],
           ),
           const SizedBox(height: 16),
@@ -603,13 +612,13 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
                   color: AppColors.error.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(Icons.event_busy, color: AppColors.error),
                     SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Bu gün için tüm saatler dolu. Lütfen farklı bir tarih seçin.',
+                        'rezervasyon.bugun_dolu'.tr(),
                         style: TextStyle(color: AppColors.error, fontSize: 13),
                       ),
                     ),
@@ -685,10 +694,10 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
                           const SizedBox(height: 2),
                           Text(
                             isPast
-                                ? 'GEÇTİ'
+                                ? 'rezervasyon.gecti'.tr()
                                 : isFullyBooked
-                                    ? 'DOLU'
-                                    : '$currentBookedCount/$maxCapacity Kişi',
+                                    ? 'rezervasyon.dolu'.tr()
+                                    : 'rezervasyon.kisi'.tr() + ': $currentBookedCount/$maxCapacity',
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
@@ -729,7 +738,7 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('Rezervasyon Özeti',
+          Text('rezervasyon.ozet'.tr(),
               style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
@@ -744,16 +753,16 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
             ),
             child: Column(
               children: [
-                _buildConfirmRow(Icons.sports_tennis, 'Tesis',
+                _buildConfirmRow(Icons.sports_tennis, 'rezervasyon.tesis'.tr(),
                     _selectedFacility?.name ?? '-'),
                 const Divider(height: 24),
                 _buildConfirmRow(
                     Icons.calendar_today,
-                    'Tarih',
+                    'rezervasyon.tarih'.tr(),
                     DateFormat('d MMMM y, EEEE', 'tr_TR').format(_selectedDay)),
                 const Divider(height: 24),
                 _buildConfirmRow(
-                    Icons.access_time, 'Saat', _selectedTimeSlot ?? '-'),
+                    Icons.access_time, 'rezervasyon.saat'.tr(), _selectedTimeSlot ?? '-'),
               ],
             ),
           ),
@@ -764,7 +773,7 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
               color: AppColors.info.withOpacity(0.08),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('📋 Rezervasyon Kuralları',
@@ -774,11 +783,14 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
                         color: AppColors.info)),
                 SizedBox(height: 8),
                 Text(
-                  '• Rezervasyonu iptal etmek için en az 2 saat öncesinden işlem yapınız.\n'
-                  '• Rezervasyon saatinden 10 dakika sonrasında gelmezseniz rezervasyonunuz iptal edilir.\n'
-                  '• Spor ekipmanları girişte teslim alınabilir.',
+                  '${'rezervasyon.kural_1'.tr()}\n'
+                  '${'rezervasyon.kural_2'.tr()}\n'
+                  '${'rezervasyon.kural_3'.tr()}',
                   style: TextStyle(
-                      fontSize: 12, color: AppColors.textSecondary, height: 1.6),
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                    height: 1.6,
+                  ),
                 ),
               ],
             ),
@@ -826,7 +838,7 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
       _ => true,
     };
 
-    final labels = ['Tarih Seç', 'Saat Seç', 'Onayla', 'Rezervasyonu Oluştur'];
+    final labels = ['rezervasyon.tarih'.tr(), 'rezervasyon.saat'.tr(), 'rezervasyon.onay'.tr(), 'rezervasyon.olustur'.tr()];
 
     return Container(
       padding: EdgeInsets.only(
@@ -876,7 +888,9 @@ class ReservationDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Rezervasyon Detayı')),
-        body: Center(child: Text('Rezervasyon: $reservationId')),
+        appBar: AppBar(title: Text('rezervasyon.detay').tr()),
+        body: Center(
+          child: Text('${'rezervasyon.detay'.tr()}: $reservationId'),
+        ),
       );
 }

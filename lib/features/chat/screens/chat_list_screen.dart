@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:tenis_kulubu/core/theme/app_colors.dart';
 import 'package:tenis_kulubu/core/router/app_router.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+
 final chatRoomsProvider = StreamProvider<List<ChatRoomData>>((ref) {
   return FirebaseFirestore.instance
       .collection('messages')
@@ -55,20 +57,20 @@ class ChatListScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Sohbet')),
+      appBar: AppBar(title: Text('sohbet.sohbet').tr()),
       body: roomsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Hata: $e')),
         data: (rooms) {
           if (rooms.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.chat_bubble_outline,
                       size: 56, color: AppColors.textHint),
                   SizedBox(height: 12),
-                  Text('Henüz sohbet odası yok.',
+                  Text('sohbet.henuz_sohbet_yok'.tr(),
                       style: TextStyle(color: AppColors.textHint)),
                 ],
               ),

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tenis_kulubu/shared/models/coach_model.dart';
 import 'package:tenis_kulubu/features/coach/screens/coach_booking_screen.dart';
 import 'package:tenis_kulubu/features/coach/data/coach_booking_model.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class CoachService {
   final _db = FirebaseFirestore.instance;
@@ -43,7 +44,7 @@ class CoachService {
     // Çakışma kontrolü
     final booked = await getBookedSlots(booking.coachId, booking.date);
     if (booked.contains(booking.timeSlot)) {
-      throw Exception('Bu saat dolu, lütfen başka bir saat seçin.');
+      throw Exception('coach.saat_dolu'.tr());
     }
 
     await _db.collection('coach_bookings').add(booking.toMap());

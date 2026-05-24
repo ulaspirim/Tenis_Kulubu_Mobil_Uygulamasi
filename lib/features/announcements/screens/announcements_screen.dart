@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 
 import 'package:tenis_kulubu/core/theme/app_colors.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+
 final announcementsProvider = StreamProvider<List<AnnouncementData>>((ref) {
   return FirebaseFirestore.instance
       .collection('announcements')
@@ -71,10 +73,10 @@ class AnnouncementData {
 
   String get categoryLabel {
     switch (category) {
-      case 'tournament': return 'Turnuva';
-      case 'maintenance': return 'Bakım';
-      case 'event': return 'Etkinlik';
-      default: return 'Duyuru';
+      case 'tournament': return 'duyurular.duyuru_kategori_turnuva'.tr();
+      case 'maintenance': return 'duyurular.duyuru_kategori_bakim'.tr();
+      case 'event': return 'duyurular.duyuru_kategori_etkinlik'.tr();
+      default: return 'duyurular.duyuru'.tr();
     }
   }
 }
@@ -90,7 +92,13 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  final _tabs = ['Tümü', 'Turnuvalar', 'Etkinlikler', 'Duyurular', 'Bakım'];
+  final _tabs = [
+  'duyurular.duyuru_kategori_tumu'.tr(),
+  'duyurular.duyuru_kategori_turnuva'.tr(),
+  'duyurular.duyuru_kategori_etkinlik'.tr(),
+  'duyurular.duyuru_kategori_genel'.tr(),
+  'duyurular.duyuru_kategori_bakim'.tr(),
+];
   final _filters = ['', 'tournament', 'event', 'general', 'maintenance'];
 
   @override
@@ -111,7 +119,7 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Duyurular'),
+        title: Text('duyurular.duyurular'.tr()),
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
@@ -123,7 +131,7 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen>
       ),
       body: ref.watch(announcementsProvider).when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Hata: $e')),
+        error: (e, _) => Center(child: Text('${'duyurular.hata'.tr()}: $e')),
         data: (items) => TabBarView(
           controller: _tabController,
           children: List.generate(_tabs.length, (i) {
@@ -140,13 +148,13 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen>
 
   Widget _buildList(List<AnnouncementData> items) {
     if (items.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.campaign_outlined, size: 56, color: AppColors.textHint),
             SizedBox(height: 12),
-            Text('Bu kategoride duyuru yok.',
+            Text('duyurular.duyuru_yok'.tr(),
                 style: TextStyle(color: AppColors.textHint)),
           ],
         ),
@@ -184,11 +192,11 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen>
                   topRight: Radius.circular(16),
                 ),
               ),
-              child: const Row(
+              child: Row(
                 children: [
                   Icon(Icons.push_pin_rounded, size: 14, color: AppColors.primary),
                   SizedBox(width: 6),
-                  Text('Sabitlenmiş',
+                  Text('duyurular.sabitlenmis'.tr(),
                       style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -243,12 +251,13 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen>
                           size: 13, color: AppColors.primary),
                       const SizedBox(width: 4),
                       Text(
-                        'Etkinlik: ${DateFormat('d MMMM y', 'tr_TR').format(item.eventDate!)}',
+                        '${'duyurular.etkinlik'.tr()}: ${DateFormat('d MMMM y', 'tr_TR').format(item.eventDate!)}',
                         style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600),
-                      ),
+                          fontSize: 12,
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      )
                     ],
                   ),
                 ],

@@ -5,6 +5,8 @@ import 'package:tenis_kulubu/features/coach/data/coach_booking_model.dart';
 import 'package:tenis_kulubu/features/coach/data/coach_service.dart';
 import 'package:tenis_kulubu/shared/widgets/time_slot_picker.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+
 class CoachBookingScreen extends StatefulWidget {
   final CoachModel coach;
   const CoachBookingScreen({super.key, required this.coach});
@@ -44,7 +46,7 @@ class _CoachBookingScreenState extends State<CoachBookingScreen> {
   Future<void> _confirmBooking() async {
     if (_selectedSlot == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen bir saat seçin.')),
+        SnackBar(content: Text('coach.saat_sec').tr(), backgroundColor: Colors.red),
       );
       return;
     }
@@ -58,7 +60,7 @@ class _CoachBookingScreenState extends State<CoachBookingScreen> {
         coachId: widget.coach.id,
         coachName: widget.coach.name,
         userId: user.uid,
-        userName: user.displayName ?? 'Üye',
+        userName: user.displayName ?? 'uyelik.uye'.tr(),
         date: _selectedDate,
         timeSlot: _selectedSlot!,
         price: widget.coach.pricePerHour,
@@ -70,8 +72,8 @@ class _CoachBookingScreenState extends State<CoachBookingScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Randevunuz alındı! Onay bekleniyor.'),
+          SnackBar(
+            content: Text('coach.randevunuz_alindi').tr(),
             backgroundColor: Color(0xFF4CAF50),
           ),
         );
@@ -79,7 +81,7 @@ class _CoachBookingScreenState extends State<CoachBookingScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Hata: $e'), backgroundColor: Colors.red),
+        SnackBar(content: Text('coach.hata_randevu').tr(), backgroundColor: Colors.red),
       );
     } finally {
       setState(() => _loading = false);
@@ -105,7 +107,7 @@ class _CoachBookingScreenState extends State<CoachBookingScreen> {
           children: [
 
             // ── Adım 1: Tarih Seçimi ───────────────────────────────────
-            const Text('📅 Tarih Seç',
+            Text(('coach.tarih_sec').tr(),
                 style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             SizedBox(
@@ -162,12 +164,12 @@ class _CoachBookingScreenState extends State<CoachBookingScreen> {
             const SizedBox(height: 28),
 
             // ── Adım 2: Saat Seçimi ────────────────────────────────────
-            const Text('🕐 Saat Seç',
+            Text(('coach.saat_sec').tr(),
                 style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             _availableSlots.isEmpty
-                ? const Text(
-                    'Bu gün için uygun saat yok.',
+                ? Text(
+                    'coach.saat_dolu'.tr(),
                     style: TextStyle(color: Colors.white54),
                   )
                 : TimeSlotPicker(
@@ -179,7 +181,7 @@ class _CoachBookingScreenState extends State<CoachBookingScreen> {
             const SizedBox(height: 28),
 
             // ── Adım 3: Not (opsiyonel) ────────────────────────────────
-            const Text('📝 Antrenöre Not (opsiyonel)',
+            Text(('coach.antrenore_not').tr(),
                 style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             TextField(
@@ -187,7 +189,7 @@ class _CoachBookingScreenState extends State<CoachBookingScreen> {
               maxLines: 3,
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
-                hintText: 'Ör: Backhand çalışmak istiyorum.',
+                hintText: 'coach.antrenore_not_hint'.tr(),
                 hintStyle: const TextStyle(color: Colors.white38),
                 filled: true,
                 fillColor: const Color(0xFF1C2128),
@@ -250,8 +252,8 @@ class _CoachBookingScreenState extends State<CoachBookingScreen> {
                 onPressed: _loading ? null : _confirmBooking,
                 child: _loading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                        'Randevuyu Onayla',
+                    : Text(
+                        'coach.onayla'.tr(),
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -266,7 +268,16 @@ class _CoachBookingScreenState extends State<CoachBookingScreen> {
   }
 
   String _dayAbbr(int weekday) {
-    const abbrs = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+    final abbrs = [
+      'coach.pazartesi'.tr(),
+      'coach.sali'.tr(),
+      'coach.carsamba'.tr(),
+      'coach.persembe'.tr(),
+      'coach.cuma'.tr(),
+      'coach.cumartesi'.tr(),
+      'coach.pazar'.tr(),
+    ];
+
     return abbrs[weekday - 1];
   }
 }

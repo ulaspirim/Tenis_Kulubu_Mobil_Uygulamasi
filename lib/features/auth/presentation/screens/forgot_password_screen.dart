@@ -7,6 +7,7 @@ import 'package:tenis_kulubu/core/router/app_router.dart';
 import 'package:tenis_kulubu/features/auth/data/auth_repository.dart';
 import 'package:tenis_kulubu/features/auth/presentation/widgets/auth_text_field.dart';
 
+import 'package:easy_localization/easy_localization.dart';
 
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -57,7 +58,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Şifre Sıfırla'),
+        title: Text('uyelik.sifremi_sifirla').tr(),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_rounded),
           onPressed: () => context.pop(),
@@ -90,8 +91,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             ),
           ),
           const SizedBox(height: 28),
-          const Text(
-            'Şifrenizi Sıfırlayın',
+          Text(
+            'uyelik.sifrenizi_sifirlayin'.tr(),
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w700,
@@ -99,8 +100,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'E-posta adresinizi girin, şifre sıfırlama bağlantısı gönderelim.',
+          Text(
+            'uyelik.eposta_adresinizi_girin'.tr(),
             style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
           const SizedBox(height: 32),
@@ -112,14 +113,14 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             prefixIcon: Icons.email_outlined,
             textInputAction: TextInputAction.done,
             validator: (v) {
-              if (v == null || v.isEmpty) return 'E-posta zorunludur';
-              if (!v.contains('@')) return 'Geçerli bir e-posta girin';
+              if (v == null || v.isEmpty) return 'uyelik.eposta_gerekli'.tr();
+              if (!v.contains('@')) return 'uyelik.eposta_gecerli'.tr();
               return null;
             },
           ),
           const SizedBox(height: 32),
           AuthButton(
-            label: 'Sıfırlama Bağlantısı Gönder',
+            label: 'uyelik.sifremi_sifirla'.tr(),
             isLoading: _isLoading,
             onPressed: _sendResetEmail,
           ),
@@ -139,8 +140,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           color: AppColors.success,
         ),
         const SizedBox(height: 24),
-        const Text(
-          'E-posta Gönderildi!',
+        Text(
+          'uyelik.eposta_gonderildi'.tr(),
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w700,
@@ -150,8 +151,15 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         ),
         const SizedBox(height: 12),
         Text(
-          '${_emailCtrl.text} adresine şifre sıfırlama bağlantısı gönderildi.',
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+          'auth.sifre_sifirlama_gonderildi'.tr(
+            namedArgs: {
+              'email': _emailCtrl.text,
+            },
+          ),
+          style: const TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: 14,
+          ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 40),
