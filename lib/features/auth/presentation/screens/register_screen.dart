@@ -118,8 +118,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   Expanded(
                     child: AuthTextField(
                       controller: _firstNameCtrl,
-                      label: 'uyelik.ad',
-                      hint: 'uyelik.adiniz',
+                      label: 'uyelik.ad'.tr(),
+                      hint: 'uyelik.adiniz'.tr(),
                       prefixIcon: Icons.person_outline,
                       validator: (v) => v!.isEmpty ? 'uyelik.ad_zorunludur'.tr() : null,
                     ),
@@ -128,8 +128,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   Expanded(
                     child: AuthTextField(
                       controller: _lastNameCtrl,
-                      label: 'uyelik.soyad',
-                      hint: 'uyelik.soyadiniz',
+                      label: 'uyelik.soyad'.tr(),
+                      hint: 'uyelik.soyadiniz'.tr(),
                       prefixIcon: Icons.person_outline,
                       validator: (v) => v!.isEmpty ? 'uyelik.soyad_zorunludur'.tr() : null,
                     ),
@@ -140,8 +140,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
               AuthTextField(
                 controller: _emailCtrl,
-                label: 'uyelik.email',
-                hint: 'ornek@email.com',
+                label: 'uyelik.email'.tr(),
+                hint: 'example@email.com',
                 keyboardType: TextInputType.emailAddress,
                 prefixIcon: Icons.email_outlined,
                 validator: (v) {
@@ -154,7 +154,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
               AuthTextField(
                 controller: _phoneCtrl,
-                label: 'uyelik.telefon',
+                label: 'uyelik.telefon'.tr(),
                 hint: '05XX XXX XX XX',
                 keyboardType: TextInputType.phone,
                 prefixIcon: Icons.phone_outlined,
@@ -163,7 +163,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
               AuthTextField(
                 controller: _membershipNumCtrl,
-                label: 'uyelik.kulup_uye_numarasi',
+                label: 'uyelik.kulup_uye_numarasi'.tr(),
                 hint: 'ULAS-XXXX',
                 prefixIcon: Icons.card_membership_outlined,
                 validator: (v) => v!.isEmpty ? 'uyelik.kulup_uye_numarasi_zorunludur'.tr() : null,
@@ -172,8 +172,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
               AuthTextField(
                 controller: _passwordCtrl,
-                label: 'uyelik.sifre',
-                hint: 'uyelik.sifre_en_az_6_karakter',
+                label: 'uyelik.sifre'.tr(),
+                hint: 'uyelik.sifre_en_az_6_karakter'.tr(),
                 obscureText: _obscurePassword,
                 prefixIcon: Icons.lock_outline,
                 suffixIcon: IconButton(
@@ -193,8 +193,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
               AuthTextField(
                 controller: _confirmPasswordCtrl,
-                label: 'uyelik.sifre_tekrar',
-                hint: 'uyelik.sifre_tekrar_girin',
+                label: 'uyelik.sifre_tekrar'.tr(),
+                hint: 'uyelik.sifre_tekrar_girin'.tr(),
                 obscureText: _obscureConfirm,
                 prefixIcon: Icons.lock_outline,
                 textInputAction: TextInputAction.done,
@@ -234,13 +234,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         children: [
                           TextSpan(text: 'uyelik.kulup'.tr()),
                           TextSpan(
-                            text: 'uyelik.kullanim_kosullarini'.tr(),
+                            text: ' ${'uyelik.kullanim_kosullarini'.tr()}',
                             style: const TextStyle(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          TextSpan(text: ' uyelik.okudum_ve_kabul_ediyorum'.tr()),
+                          TextSpan(text: ' ${'uyelik.okudum_kabul_ediyorum'.tr()}',),
                         ],
                       ),
                     ),

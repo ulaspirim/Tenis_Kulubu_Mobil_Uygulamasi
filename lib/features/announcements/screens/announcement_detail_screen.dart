@@ -83,7 +83,7 @@ class AnnouncementDetailScreen extends ConsumerWidget {
 
                 // Tarih
                 Text(
-                  DateFormat('d MMMM y', 'tr_TR').format(item.publishedAt),
+                  DateFormat('d MMMM y', context.locale.toString()).format(item.publishedAt),
                   style: const TextStyle(fontSize: 13, color: AppColors.textHint),
                 ),
 
@@ -95,7 +95,7 @@ class AnnouncementDetailScreen extends ConsumerWidget {
                       const Icon(Icons.event_rounded, size: 14, color: AppColors.primary),
                       const SizedBox(width: 4),
                       Text(
-                        '${'duyurular.etkinlik'.tr()}: ${DateFormat('d MMMM y', 'tr_TR').format(item.eventDate!)}',
+                        '${'duyurular.etkinlik'.tr()}: ${DateFormat('d MMMM y', context.locale.toString()).format(item.eventDate!)}',
                         style: const TextStyle(
                             fontSize: 13,
                             color: AppColors.primary,

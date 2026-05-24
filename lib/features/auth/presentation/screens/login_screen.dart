@@ -118,7 +118,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     // Giriş Formu
                     AuthTextField(
                       controller: _emailController,
-                      label: 'uyelik.eposta'.tr(),
+                      label: 'uyelik.e-posta'.tr(),
                       hint: 'ornek@email.com',
                       keyboardType: TextInputType.emailAddress,
                       prefixIcon: Icons.email_outlined,

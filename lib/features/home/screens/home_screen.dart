@@ -179,7 +179,7 @@ class HomeScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Merhaba, ${user?.firstName ?? 'uyelik.uye'.tr()} 👋',
+                    '${'ana_ekran.hosgeldin'.tr()} ${user?.firstName ?? 'uyelik.uye'.tr()} 👋',
                     style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 14,
@@ -195,7 +195,7 @@ class HomeScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    DateFormat('d MMMM y, EEEE', 'tr_TR').format(DateTime.now()),
+                    DateFormat('d MMMM y, EEEE', context.locale.toString()).format(DateTime.now()),
                     style: const TextStyle(color: Colors.white54, fontSize: 12),
                   ),
                 ],
@@ -320,6 +320,14 @@ class HomeScreen extends ConsumerWidget {
     final isCritical = daysLeft <= 7;
     final isWarning = daysLeft <= 30;
 
+    final membershipLabel = {
+      'standard':    'admin.uyelik_tipi_standard'.tr(),
+      'premium':     'admin.uyelik_tipi_premium'.tr(),
+      'family':      'admin.uyelik_tipi_family'.tr(),
+      'special':     'admin.uyelik_tipi_special'.tr(),
+      'club_player': 'admin.uyelik_tipi_club_player'.tr(),
+    }[user.membershipType] ?? user.membershipType;
+
     return GestureDetector(
       onTap: () => context.go(AppRouter.membership),
       child: Container(
@@ -344,7 +352,7 @@ class HomeScreen extends ConsumerWidget {
                           color: Colors.white70, size: 16),
                       const SizedBox(width: 6),
                       Text(
-                        user.membershipNumber as String,
+                        membershipLabel as String,
                         style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 12,
@@ -406,7 +414,7 @@ class HomeScreen extends ConsumerWidget {
                           color: AppColors.textPrimary)),
                   const SizedBox(height: 4),
                   Text(
-                    DateFormat('d MMMM y', 'tr_TR').format(a.publishedAt),
+                    DateFormat('d MMMM y', context.locale.toString()).format(a.publishedAt),
                     style: const TextStyle(
                         fontSize: 12, color: AppColors.textSecondary),
                   ),

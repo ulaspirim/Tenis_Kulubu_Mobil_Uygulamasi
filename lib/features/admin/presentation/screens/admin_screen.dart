@@ -1046,7 +1046,7 @@ Widget _buildExistingCoachesList() {
                 leading: const Icon(Icons.calendar_today_outlined, color: AppColors.primary),
                 title: Text('admin.yeni_bitis_tarihi'.tr()),
                 subtitle: Text(
-                  DateFormat('d MMMM y', 'tr_TR').format(newExpiry),
+                  DateFormat('d MMMM y', context.locale.toString()).format(newExpiry),
                   style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.primary),
                 ),
                 onTap: () async {

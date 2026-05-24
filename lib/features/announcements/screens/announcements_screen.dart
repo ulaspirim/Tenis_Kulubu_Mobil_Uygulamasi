@@ -251,7 +251,7 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen>
                           size: 13, color: AppColors.primary),
                       const SizedBox(width: 4),
                       Text(
-                        '${'duyurular.etkinlik'.tr()}: ${DateFormat('d MMMM y', 'tr_TR').format(item.eventDate!)}',
+                        '${'duyurular.etkinlik'.tr()}: ${DateFormat('d MMMM y', context.locale.toString()).format(item.eventDate!)}',
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.primary,
@@ -276,7 +276,7 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen>
                 ],
                 const SizedBox(height: 10),
                 Text(
-                  DateFormat('d MMMM y', 'tr_TR').format(item.publishedAt),
+                  DateFormat('d MMMM y', context.locale.toString()).format(item.publishedAt),
                   style: const TextStyle(fontSize: 12, color: AppColors.textHint),
                 ),
               ],

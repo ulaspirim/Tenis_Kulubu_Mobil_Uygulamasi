@@ -229,7 +229,7 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
             const SizedBox(height: 8),
             Text(
               '${_selectedFacility!.name}\n'
-              '${DateFormat('d MMMM y', 'tr_TR').format(_selectedDay)}\n'
+              '${DateFormat('d MMMM y', context.locale.toString()).format(_selectedDay)}\n'
               '$_selectedTimeSlot',
               style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
               textAlign: TextAlign.center,
@@ -574,7 +574,7 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            DateFormat('d MMMM y, EEEE', 'tr_TR').format(_selectedDay),
+            DateFormat('d MMMM y, EEEE', context.locale.toString()).format(_selectedDay),
             style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -759,7 +759,7 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
                 _buildConfirmRow(
                     Icons.calendar_today,
                     'rezervasyon.tarih'.tr(),
-                    DateFormat('d MMMM y, EEEE', 'tr_TR').format(_selectedDay)),
+                    DateFormat('d MMMM y, EEEE', context.locale.toString()).format(_selectedDay)),
                 const Divider(height: 24),
                 _buildConfirmRow(
                     Icons.access_time, 'rezervasyon.saat'.tr(), _selectedTimeSlot ?? '-'),
@@ -776,7 +776,7 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('📋 Rezervasyon Kuralları',
+                Text('rezervasyon.rezervasyon_kurallari'.tr(),
                     style: TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
