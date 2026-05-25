@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:tenis_kulubu/core/theme/app_colors.dart';
 import 'package:tenis_kulubu/features/auth/data/auth_repository.dart';
+import 'package:tenis_kulubu/features/membership/presentation/payment_bottom_sheet.dart';
 
 import 'package:easy_localization/easy_localization.dart';
 
@@ -39,14 +40,26 @@ class MembershipScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
                 _buildBenefitsCard(user.membershipType),
                 const SizedBox(height: 24),
+
+                // ── Yenile butonu ──
                 ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () => PaymentBottomSheet.show(
+                    context,
+                    type: PaymentSheetType.renew,
+                    currentPlan: user.membershipType,
+                  ),
                   icon: const Icon(Icons.autorenew_rounded),
                   label: Text('ana_ekran.uyeligi_yenile'.tr()),
                 ),
                 const SizedBox(height: 12),
+
+                // ── Yükselt butonu ──
                 OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () => PaymentBottomSheet.show(
+                    context,
+                    type: PaymentSheetType.upgrade,
+                    currentPlan: user.membershipType,
+                  ),
                   icon: const Icon(Icons.upgrade_rounded),
                   label: Text('ana_ekran.paket_yukselt'.tr()),
                 ),
@@ -62,13 +75,14 @@ class MembershipScreen extends ConsumerWidget {
   Widget _buildMembershipCard(String fullName, String membershipNumber, String membershipType, String membershipStatus) {
     final isActive = membershipStatus == 'active';
 
-  final membershipLabel = {
-    'standard':    'admin.uyelik_tipi_standard'.tr(),
-    'premium':     'admin.uyelik_tipi_premium'.tr(),
-    'family':      'admin.uyelik_tipi_family'.tr(),
-    'special':     'admin.uyelik_tipi_special'.tr(),
-    'club_player': 'admin.uyelik_tipi_club_player'.tr(),
-  }[membershipType] ?? membershipType; 
+    final membershipLabel = {
+      'standard':    'admin.uyelik_tipi_standard'.tr(),
+      'premium':     'admin.uyelik_tipi_premium'.tr(),
+      'family':      'admin.uyelik_tipi_family'.tr(),
+      'special':     'admin.uyelik_tipi_special'.tr(),
+      'club_player': 'admin.uyelik_tipi_club_player'.tr(),
+    }[membershipType] ?? membershipType;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -82,19 +96,19 @@ class MembershipScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-                Expanded(
-                  child: Text(
-                    'club_name'.tr(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+              Expanded(
+                child: Text(
+                  'club_name'.tr(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
+              ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
@@ -120,7 +134,7 @@ class MembershipScreen extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('ana_ekran.uye_adi'.tr(), style: TextStyle(color: Colors.white54, fontSize: 10)),
+                  Text('ana_ekran.uye_adi'.tr(), style: const TextStyle(color: Colors.white54, fontSize: 10)),
                   const SizedBox(height: 2),
                   Text(fullName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
                 ],
@@ -144,8 +158,7 @@ class MembershipScreen extends ConsumerWidget {
         children: [
           Text(
             'ana_ekran.uyelik_bitimine_kalan'.tr(),
-            style: TextStyle(
-                color: AppColors.textSecondary, fontSize: 13),
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
           ),
           const SizedBox(height: 8),
           Text(
@@ -158,7 +171,7 @@ class MembershipScreen extends ConsumerWidget {
           ),
           Text(
             'ana_ekran.gun'.tr(),
-            style: TextStyle(color: AppColors.textHint),
+            style: const TextStyle(color: AppColors.textHint),
           ),
           const SizedBox(height: 16),
           ClipRRect(
@@ -166,8 +179,7 @@ class MembershipScreen extends ConsumerWidget {
             child: LinearProgressIndicator(
               value: daysLeft / 365,
               backgroundColor: AppColors.surfaceVariant,
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                  AppColors.primary),
+              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
               minHeight: 8,
             ),
           ),
@@ -182,7 +194,7 @@ class MembershipScreen extends ConsumerWidget {
       'ana_ekran.havuz'.tr(),
       'ana_ekran.spor_salonu'.tr(),
       'ana_ekran.turnuvalara'.tr(),
-      'ana_ekran.misafir'.tr() ,
+      'ana_ekran.misafir'.tr(),
       'ana_ekran.antrenor'.tr(),
     ];
 
@@ -199,9 +211,9 @@ class MembershipScreen extends ConsumerWidget {
           Text(
             '${{
               'standard': 'uyelik.standart'.tr(),
-              'premium': 'uyelik.premium'.tr(),
-              'family': 'uyelik.aile'.tr(),
-              'student': 'uyelik.ogrenci'.tr(),
+              'premium':  'uyelik.premium'.tr(),
+              'family':   'uyelik.aile'.tr(),
+              'student':  'uyelik.ogrenci'.tr(),
             }[membershipType] ?? 'uyelik.paket'.tr()} '
             '${'uyelik.avantajlari'.tr()}',
             style: const TextStyle(
@@ -216,10 +228,7 @@ class MembershipScreen extends ConsumerWidget {
               padding: const EdgeInsets.only(bottom: 10),
               child: Text(
                 item,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textPrimary,
-                ),
+                style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
               ),
             ),
           ),

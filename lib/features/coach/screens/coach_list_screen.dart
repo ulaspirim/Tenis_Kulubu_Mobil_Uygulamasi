@@ -18,7 +18,7 @@ class CoachListScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF0D1117),
         title: Text(
-          'coach.coach_liste'.tr(),
+          'coach.liste'.tr(),
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -31,7 +31,7 @@ class CoachListScreen extends StatelessWidget {
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
-              child: Text('coach.coach_bulunamadi'.tr(), style: TextStyle(color: Colors.white54)),
+              child: Text('coach.bulunamadi'.tr(), style: TextStyle(color: Colors.white54)),
             );
           }
 
