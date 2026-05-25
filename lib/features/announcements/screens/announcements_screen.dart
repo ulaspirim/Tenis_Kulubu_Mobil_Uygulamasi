@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import 'package:tenis_kulubu/core/theme/app_colors.dart';
-
+import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 final announcementsProvider = StreamProvider<List<AnnouncementData>>((ref) {
@@ -170,119 +170,122 @@ class _AnnouncementsScreenState extends ConsumerState<AnnouncementsScreen>
   }
 
   Widget _buildCard(AnnouncementData item) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppColors.cardShadow,
-        border: item.isPinned
-            ? Border.all(color: AppColors.primary.withOpacity(0.3), width: 1.5)
-            : null,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (item.isPinned)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.08),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
+    return GestureDetector(
+      onTap: () => context.go('/announcements/${item.id}'),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: AppColors.cardShadow,
+          border: item.isPinned
+              ? Border.all(color: AppColors.primary.withOpacity(0.3), width: 1.5)
+              : null,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (item.isPinned)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.08),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
+                  ),
                 ),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.push_pin_rounded, size: 14, color: AppColors.primary),
-                  SizedBox(width: 6),
-                  Text('duyurular.sabitlenmis'.tr(),
-                      style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primary)),
-                ],
-              ),
-            ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
                   children: [
-                    Expanded(
-                      child: Text(item.title,
-                          style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary)),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: item.categoryColor.withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(item.categoryLabel,
-                          style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: item.categoryColor)),
-                    ),
+                    Icon(Icons.push_pin_rounded, size: 14, color: AppColors.primary),
+                    SizedBox(width: 6),
+                    Text('duyurular.sabitlenmis'.tr(),
+                        style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary)),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Text(item.content,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textSecondary,
-                        height: 1.5)),
-                if (item.eventDate != null) ...[
-                  const SizedBox(height: 8),
+              ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.event_rounded,
-                          size: 13, color: AppColors.primary),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${'duyurular.etkinlik'.tr()}: ${DateFormat('d MMMM y', context.locale.toString()).format(item.eventDate!)}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w600,
+                      Expanded(
+                        child: Text(item.title,
+                            style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary)),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: item.categoryColor.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                      )
+                        child: Text(item.categoryLabel,
+                            style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: item.categoryColor)),
+                      ),
                     ],
                   ),
-                ],
-                if (item.location != null) ...[
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on_outlined,
-                          size: 13, color: AppColors.textHint),
-                      const SizedBox(width: 4),
-                      Text(item.location!,
+                  const SizedBox(height: 8),
+                  Text(item.content,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                          height: 1.5)),
+                  if (item.eventDate != null) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.event_rounded,
+                            size: 13, color: AppColors.primary),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${'duyurular.etkinlik'.tr()}: ${DateFormat('d MMMM y', context.locale.toString()).format(item.eventDate!)}',
                           style: const TextStyle(
-                              fontSize: 12, color: AppColors.textHint)),
-                    ],
+                            fontSize: 12,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
+                  if (item.location != null) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on_outlined,
+                            size: 13, color: AppColors.textHint),
+                        const SizedBox(width: 4),
+                        Text(item.location!,
+                            style: const TextStyle(
+                                fontSize: 12, color: AppColors.textHint)),
+                      ],
+                    ),
+                  ],
+                  const SizedBox(height: 10),
+                  Text(
+                    DateFormat('d MMMM y', context.locale.toString()).format(item.publishedAt),
+                    style: const TextStyle(fontSize: 12, color: AppColors.textHint),
                   ),
                 ],
-                const SizedBox(height: 10),
-                Text(
-                  DateFormat('d MMMM y', context.locale.toString()).format(item.publishedAt),
-                  style: const TextStyle(fontSize: 12, color: AppColors.textHint),
-                ),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

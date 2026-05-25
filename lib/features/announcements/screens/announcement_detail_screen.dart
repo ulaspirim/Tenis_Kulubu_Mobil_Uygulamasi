@@ -12,6 +12,32 @@ class AnnouncementDetailScreen extends ConsumerWidget {
   final String announcementId;
   const AnnouncementDetailScreen({super.key, required this.announcementId});
 
+  String _getCategoryLabel(String category) {
+    switch (category) {
+      case 'tournament':
+        return 'duyurular.duyuru_kategori_turnuva'.tr();
+      case 'maintenance':
+        return 'duyurular.duyuru_kategori_bakim'.tr();
+      case 'event':
+        return 'duyurular.duyuru_kategori_etkinlik'.tr();
+      default:
+        return 'duyurular.duyuru'.tr();
+    }
+  }
+
+  Color _getCategoryColor(String category) {
+    switch (category) {
+      case 'tournament':
+        return AppColors.accent;
+      case 'maintenance':
+        return AppColors.warning;
+      case 'event':
+        return AppColors.info;
+      default:
+        return AppColors.primary;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
@@ -34,8 +60,10 @@ class AnnouncementDetailScreen extends ConsumerWidget {
           }
           if (!snapshot.hasData || !snapshot.data!.exists) {
             return Center(
-              child: Text('duyurular.duyuru_yok'.tr(),
-                  style: TextStyle(color: AppColors.textHint)),
+              child: Text(
+                'duyurular.duyuru_yok'.tr(),
+                style: const TextStyle(color: AppColors.textHint),
+              ),
             );
           }
 
@@ -53,6 +81,9 @@ class AnnouncementDetailScreen extends ConsumerWidget {
             location: data['location'],
           );
 
+          final categoryColor = _getCategoryColor(item.category);
+          final categoryLabel = _getCategoryLabel(item.category);
+
           return SingleChildScrollView(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -60,31 +91,40 @@ class AnnouncementDetailScreen extends ConsumerWidget {
               children: [
                 // Kategori etiketi
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: item.categoryColor.withOpacity(0.12),
+                    color: categoryColor.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text(item.categoryLabel,
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: item.categoryColor)),
+                  child: Text(
+                    categoryLabel,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: categoryColor,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 14),
 
                 // Başlık
-                Text(item.title,
-                    style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary)),
+                Text(
+                  item.title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
                 const SizedBox(height: 8),
 
-                // Tarih
+                // Yayın tarihi
                 Text(
-                  DateFormat('d MMMM y', context.locale.toString()).format(item.publishedAt),
-                  style: const TextStyle(fontSize: 13, color: AppColors.textHint),
+                  DateFormat('d MMMM y', context.locale.toString())
+                      .format(item.publishedAt),
+                  style: const TextStyle(
+                      fontSize: 13, color: AppColors.textHint),
                 ),
 
                 // Etkinlik tarihi
@@ -92,14 +132,16 @@ class AnnouncementDetailScreen extends ConsumerWidget {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.event_rounded, size: 14, color: AppColors.primary),
+                      const Icon(Icons.event_rounded,
+                          size: 14, color: AppColors.primary),
                       const SizedBox(width: 4),
                       Text(
                         '${'duyurular.etkinlik'.tr()}: ${DateFormat('d MMMM y', context.locale.toString()).format(item.eventDate!)}',
                         style: const TextStyle(
-                            fontSize: 13,
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600),
+                          fontSize: 13,
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
@@ -113,9 +155,11 @@ class AnnouncementDetailScreen extends ConsumerWidget {
                       const Icon(Icons.location_on_outlined,
                           size: 14, color: AppColors.textHint),
                       const SizedBox(width: 4),
-                      Text(item.location!,
-                          style: const TextStyle(
-                              fontSize: 13, color: AppColors.textHint)),
+                      Text(
+                        item.location!,
+                        style: const TextStyle(
+                            fontSize: 13, color: AppColors.textHint),
+                      ),
                     ],
                   ),
                 ],
@@ -125,11 +169,14 @@ class AnnouncementDetailScreen extends ConsumerWidget {
                 const SizedBox(height: 20),
 
                 // İçerik
-                Text(item.content,
-                    style: const TextStyle(
-                        fontSize: 15,
-                        color: AppColors.textSecondary,
-                        height: 1.7)),
+                Text(
+                  item.content,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: AppColors.textSecondary,
+                    height: 1.7,
+                  ),
+                ),
               ],
             ),
           );
