@@ -3,7 +3,7 @@
 ## Proje Tanımı
 Bu uygulama, çeşitli spor kulüp üyelerinin rezervasyon ve diğer uygulamalarının takibi, yönetimi ve sistemin kolaylaştırılması amacıyla kulübe üye kişiler ve kulüp yöneticileri için oluşturulmuştur.
 
-[Proje Tanıtım Videosu](https://youtube.com/shorts/ivkp-HrG9Cw?feature=share)
+[Proje Tanıtım Videosu](https://youtube.com/shorts/j2fLZvLRNCU)
 
 ## Proje Kategorisi
 Sosyal Kulüp Ağı
@@ -24,4 +24,4 @@ Uygulamada flutter yani dart yazılım dilini kullanarak arayüzü oluşturdum. 
  [Flutter Yazılım Dosyası](https://github.com/ulaspirim/tenis_kulubu/tree/main)
  
 ## Kontrol ve Test
- [Mobil Uygulama Testleri](https://youtube.com/shorts/ivkp-HrG9Cw?feature=share)
+ [Mobil Uygulama Testleri](https://youtube.com/shorts/j2fLZvLRNCU)
